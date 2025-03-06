@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Rich Bot - AdsGram</title>
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom right, #4e54c8, #8f94fb);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            margin-top: 100px;
+        }
+
+        button {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .reward {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Selamat Datang di Rich Bot</h1>
+        <p>Klik tombol di bawah untuk mendapatkan reward dari iklan!</p>
+        <button id="showAdBtn" onclick="tampilkanIklan()">Tonton Iklan</button>
+        <div id="rewardDisplay" class="reward">Total Reward: Rp. 0</div>
+    </div>
+
+    <script>
+        // Inisialisasi AdsGram
+        const AdController = window.Adsgram.init({
+            blockId: "8750" // Ganti dengan blockId Anda
+        });
+
+        let totalReward = 0;
+
+        // Fungsi menampilkan iklan
+        function tampilkanIklan() {
+            const btn = document.getElementById('showAdBtn');
+            btn.disabled = true; // Nonaktifkan tombol selama iklan berjalan
+
+            AdController.show()
+                .then((result) => {
+                    // Jika iklan selesai ditonton
+                    if (result.done && !result.error) {
+                        const reward = 25; // Reward per iklan (bisa disesuaikan)
+                        totalReward += reward;
+                        document.getElementById('rewardDisplay').innerText = `Total Reward: Rp. ${totalReward}`;
+                        alert(`✅ Anda mendapatkan Rp. ${reward} dari iklan!`);
+                    } else {
+                        alert('⚠️ Iklan ditutup sebelum selesai.');
+                    }
+                    btn.disabled = false; // Aktifkan tombol kembali
+                })
+                .catch((result) => {
+                    alert('❌ Gagal memuat iklan. Silakan coba lagi nanti.');
+                    console.error('Error:', result);
+                    btn.disabled = false; // Aktifkan tombol kembali jika ada error
+                });
+        }
+    </script>
+</body>
+
+</html>
