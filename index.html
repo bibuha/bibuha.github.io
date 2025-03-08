@@ -3,85 +3,70 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Rich Bot - AdsGram</title>
-    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rich Bot v1.0 - Iklan</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom right, #4e54c8, #8f94fb);
-            color: white;
             text-align: center;
-            padding: 20px;
-        }
-
-        .container {
-            margin-top: 100px;
-        }
-
-        button {
-            background: #ff6b6b;
+            margin: 50px;
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
             color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Desain tombol menarik */
+        #showAdBtn {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            color: white;
+            padding: 15px 40px;
             font-size: 18px;
+            border: none;
+            border-radius: 30px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         }
 
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        #showAdBtn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
         }
 
-        .reward {
-            margin-top: 20px;
-            font-size: 24px;
+        #showAdBtn:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>Selamat Datang di Rich Bot</h1>
-        <p>Klik tombol di bawah untuk mendapatkan reward dari iklan!</p>
-        <button id="showAdBtn" onclick="tampilkanIklan()">Tonton Iklan</button>
-        <div id="rewardDisplay" class="reward">Total Reward: Rp. 0</div>
-    </div>
+    <h1>Selamat Datang di Rich Bot v1.0</h1>
+
+    <!-- Tombol untuk menampilkan iklan -->
+    <button id="showAdBtn">🎉 Tonton Iklan & Dapatkan Reward 🎁</button>
+
+    <!-- Memuat skrip SDK Telega.io -->
+    <script src="https://inapp.telega.io/sdk/v1/sdk.js"></script>
 
     <script>
-        // Inisialisasi AdsGram
-        const AdController = window.Adsgram.init({
-            blockId: "8750" // Ganti dengan blockId Anda
+        // Inisialisasi Telega.io dengan token Anda
+        const ads = window.TelegaIn.AdsController.create_miniapp({
+            token: '32790e18-1463-49a8-bef8-ff8d8859aec0'
         });
 
-        let totalReward = 0;
-
-        // Fungsi menampilkan iklan
-        function tampilkanIklan() {
-            const btn = document.getElementById('showAdBtn');
-            btn.disabled = true; // Nonaktifkan tombol selama iklan berjalan
-
-            AdController.show()
-                .then((result) => {
-                    // Jika iklan selesai ditonton
-                    if (result.done && !result.error) {
-                        const reward = 25; // Reward per iklan (bisa disesuaikan)
-                        totalReward += reward;
-                        document.getElementById('rewardDisplay').innerText = `Total Reward: Rp. ${totalReward}`;
-                        alert(`✅ Anda mendapatkan Rp. ${reward} dari iklan!`);
-                    } else {
-                        alert('⚠️ Iklan ditutup sebelum selesai.');
-                    }
-                    btn.disabled = false; // Aktifkan tombol kembali
-                })
-                .catch((result) => {
-                    alert('❌ Gagal memuat iklan. Silakan coba lagi nanti.');
-                    console.error('Error:', result);
-                    btn.disabled = false; // Aktifkan tombol kembali jika ada error
-                });
-        }
+        // Event listener untuk menampilkan iklan saat tombol diklik
+        document.getElementById('showAdBtn').addEventListener('click', function () {
+            ads.ad_show({
+                adBlockUuid: "b298d655-dc25-483d-9042-8221e34cabe0"
+            });
+        });
     </script>
+
 </body>
 
 </html>
