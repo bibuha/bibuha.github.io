@@ -9,7 +9,7 @@
     <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 
     <style>
-        /* Gaya latar belakang gradasi mewah */
+        /* Desain latar belakang yang menarik */
         body {
             font-family: 'Poppins', sans-serif;
             text-align: center;
@@ -24,20 +24,17 @@
             overflow: hidden;
         }
 
-        /* Kartu utama */
         .container {
             background: rgba(255, 255, 255, 0.1);
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
-            animation: fadeIn 1s ease-in-out;
         }
 
         h1 {
             font-size: 42px;
             margin-bottom: 20px;
-            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
         }
 
         p {
@@ -45,7 +42,7 @@
             margin-bottom: 30px;
         }
 
-        /* Tombol bergaya */
+        /* Desain tombol */
         #showAdBtn {
             background: linear-gradient(45deg, #ff416c, #ff4b2b);
             color: white;
@@ -67,19 +64,6 @@
         #showAdBtn:active {
             transform: scale(0.95);
         }
-
-        /* Animasi masuk */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
     </style>
 </head>
 
@@ -89,22 +73,45 @@
         <h1>Selamat Datang di Rich Bot v1.0</h1>
         <p>Tonton iklan dan dapatkan reward menarik setiap hari!</p>
 
-        <!-- Tombol untuk menampilkan iklan -->
+        <!-- Tombol Tonton Iklan -->
         <button id="showAdBtn">🎉 Tonton Iklan & Dapatkan Reward 🎁</button>
     </div>
 
     
     <script>
         // Inisialisasi RichAds
+        let isAdReady = false;
         window.TelegramAdsController = new TelegramAdsController();
         window.TelegramAdsController.initialize({
-            pubId: "963391", // Ganti dengan Publisher ID Anda
-            appId: "1707"    // Ganti dengan App ID Anda
+            pubId: "963391", // Pastikan ini benar
+            appId: "1707"
         });
 
-        // Event listener untuk menampilkan iklan saat tombol diklik
+        // Cek apakah iklan tersedia setelah inisialisasi
+        window.TelegramAdsController.isAdAvailable(function (available) {
+            isAdReady = available;
+            if (!available) {
+                alert('⚠️ Iklan tidak tersedia saat ini, coba lagi nanti.');
+            }
+        });
+
+        // Event saat tombol diklik
         document.getElementById('showAdBtn').addEventListener('click', function () {
-            window.TelegramAdsController.showAd();
+            if (isAdReady) {
+                window.TelegramAdsController.showAd({
+                    onAdComplete: function () {
+                        alert('✅ Iklan selesai ditonton! Reward telah diberikan.');
+                    },
+                    onAdDismissed: function () {
+                        alert('⚠️ Iklan ditutup sebelum selesai.');
+                    },
+                    onAdError: function (error) {
+                        alert('❌ Gagal memuat iklan: ' + error);
+                    }
+                });
+            } else {
+                alert('⚠️ Iklan belum tersedia, silakan coba lagi nanti.');
+            }
         });
     </script>
 
