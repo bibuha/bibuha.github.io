@@ -4,28 +4,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rich Bot v1.0 - Iklan</title>
+    <title>Rich Bot v1.0 - Tonton Iklan</title>
+    <!-- Memuat skrip RichAds -->
+    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+
     <style>
+        /* Gaya latar belakang gradasi mewah */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             text-align: center;
-            margin: 50px;
-            background: linear-gradient(to right, #4e54c8, #8f94fb);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
             color: white;
+            overflow: hidden;
+        }
+
+        /* Kartu utama */
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-in-out;
         }
 
         h1 {
-            font-size: 32px;
-            margin-bottom: 40px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-size: 42px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
         }
 
-        /* Desain tombol menarik */
+        p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        /* Tombol bergaya */
         #showAdBtn {
             background: linear-gradient(45deg, #ff416c, #ff4b2b);
             color: white;
-            padding: 15px 40px;
-            font-size: 18px;
+            padding: 15px 45px;
+            font-size: 20px;
+            font-weight: bold;
             border: none;
             border-radius: 30px;
             cursor: pointer;
@@ -41,29 +67,44 @@
         #showAdBtn:active {
             transform: scale(0.95);
         }
+
+        /* Animasi masuk */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
 <body>
-    <h1>Selamat Datang di Rich Bot v1.0</h1>
 
-    <!-- Tombol untuk menampilkan iklan -->
-    <button id="showAdBtn">🎉 Tonton Iklan & Dapatkan Reward 🎁</button>
+    <div class="container">
+        <h1>Selamat Datang di Rich Bot v1.0</h1>
+        <p>Tonton iklan dan dapatkan reward menarik setiap hari!</p>
 
-    <!-- Memuat skrip SDK Telega.io -->
-    <script src="https://inapp.telega.io/sdk/v1/sdk.js"></script>
+        <!-- Tombol untuk menampilkan iklan -->
+        <button id="showAdBtn">🎉 Tonton Iklan & Dapatkan Reward 🎁</button>
+    </div>
 
+    
     <script>
-        // Inisialisasi Telega.io dengan token Anda
-        const ads = window.TelegaIn.AdsController.create_miniapp({
-            token: '32790e18-1463-49a8-bef8-ff8d8859aec0'
+        // Inisialisasi RichAds
+        window.TelegramAdsController = new TelegramAdsController();
+        window.TelegramAdsController.initialize({
+            pubId: "963391", // Ganti dengan Publisher ID Anda
+            appId: "1707"    // Ganti dengan App ID Anda
         });
 
         // Event listener untuk menampilkan iklan saat tombol diklik
         document.getElementById('showAdBtn').addEventListener('click', function () {
-            ads.ad_show({
-                adBlockUuid: "b298d655-dc25-483d-9042-8221e34cabe0"
-            });
+            window.TelegramAdsController.showAd();
         });
     </script>
 
