@@ -5,11 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rich Bot v1.0 - Tonton Iklan</title>
-    <!-- Memuat skrip RichAds -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 
     <style>
-        /* Desain latar belakang yang menarik */
         body {
             font-family: 'Poppins', sans-serif;
             text-align: center;
@@ -42,7 +41,6 @@
             margin-bottom: 30px;
         }
 
-        /* Desain tombol */
         #showAdBtn {
             background: linear-gradient(45deg, #ff416c, #ff4b2b);
             color: white;
@@ -77,17 +75,32 @@
         <button id="showAdBtn">🎉 Tonton Iklan & Dapatkan Reward 🎁</button>
     </div>
 
-    
     <script>
+        // Inisialisasi variabel untuk menyimpan data Telegram
+        let userData = {};
+
+        // Ambil data pengguna dari Telegram
+        Telegram.WebApp.ready();
+        if (Telegram.WebApp.initDataUnsafe.user) {
+            const user = Telegram.WebApp.initDataUnsafe.user;
+            userData = {
+                id: user.id || 'Tidak diketahui',
+                nama: user.first_name || 'Tidak diketahui',
+                username: user.username || 'Tidak ada username'
+            };
+        } else {
+            alert('⚠️ Gagal mengambil data Telegram.');
+        }
+
         // Inisialisasi RichAds
         let isAdReady = false;
         window.TelegramAdsController = new TelegramAdsController();
         window.TelegramAdsController.initialize({
-            pubId: "963391", // Pastikan ini benar
+            pubId: "963391",
             appId: "1707"
         });
 
-        // Cek apakah iklan tersedia setelah inisialisasi
+        // Cek apakah iklan tersedia
         window.TelegramAdsController.isAdAvailable(function (available) {
             isAdReady = available;
             if (!available) {
@@ -95,12 +108,32 @@
             }
         });
 
+        // Kirim notifikasi ke Channel Telegram
+        function kirimNotifikasiKeChannel(pesan) {
+            const botToken = "7934521155:AAFpmSROBYB2g0kEt5wzH3KIzcTmUr-AKeo";
+            const channelId = "@richbot_channel";
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            const message = `${pesan}\n\n👤 Nama: ${userData.nama}\n📛 Username: @${userData.username}\n🆔 ID: ${userData.id}\n📅 Waktu: ${new Date().toLocaleString()}`;
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    chat_id: channelId,
+                    text: message
+                })
+            });
+        }
+
         // Event saat tombol diklik
         document.getElementById('showAdBtn').addEventListener('click', function () {
             if (isAdReady) {
                 window.TelegramAdsController.showAd({
                     onAdComplete: function () {
                         alert('✅ Iklan selesai ditonton! Reward telah diberikan.');
+                        kirimNotifikasiKeChannel('✅ Iklan berhasil ditonton.');
                     },
                     onAdDismissed: function () {
                         alert('⚠️ Iklan ditutup sebelum selesai.');
