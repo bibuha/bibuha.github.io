@@ -6,10 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rich Bot - Telegram & RichAds</title>
 
-    <!-- Telegram WebApp JS -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <!-- RichAds Telegram SDK -->
+     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 
     <style>
@@ -148,12 +145,13 @@
             `;
         }
     
-     // Inisialisasi Telegram Ads (RichAds)
+    // Inisialisasi Telegram Ads (RichAds)
         window.TelegramAdsController = new TelegramAdsController();
         window.TelegramAdsController.initialize({
             pubId: "963391", // Ganti dengan pubId Anda
             appId: "1707"    // Ganti dengan appId Anda
         });
+
 
         // Fungsi Menampilkan Interstitial Banner
         function showInterstitialAd() {
