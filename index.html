@@ -147,6 +147,13 @@
                 <p><strong>🆔 ID:</strong> ${user.id || 'Tidak ada'}</p>
             `;
         }
+    
+     // Inisialisasi Telegram Ads (RichAds)
+        window.TelegramAdsController = new TelegramAdsController();
+        window.TelegramAdsController.initialize({
+            pubId: "963391", // Ganti dengan pubId Anda
+            appId: "1707"    // Ganti dengan appId Anda
+        });
 
         // Fungsi Menampilkan Interstitial Banner
         function showInterstitialAd() {
@@ -188,12 +195,7 @@
             }, 5000);
         }
 
-        // Inisialisasi Telegram Ads (RichAds)
-        window.TelegramAdsController = new TelegramAdsController();
-        window.TelegramAdsController.initialize({
-            pubId: "963391", // Ganti dengan pubId Anda
-            appId: "1707"    // Ganti dengan appId Anda
-        });
+       
 
         // Jalankan Saat Halaman Dimuat
         window.addEventListener('load', () => {
