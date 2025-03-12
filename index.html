@@ -1,111 +1,195 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>Rich Bot v1.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rich Bot - Telegram & RichAds</title>
+
+    <!-- Telegram WebApp & RichAds SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 
     <style>
         body {
+            font-family: 'Arial', sans-serif;
             background: linear-gradient(to right, #4e54c8, #8f94fb);
-            color: white;
-            font-family: Arial, sans-serif;
+            color: #fff;
             text-align: center;
             padding: 20px;
+            margin: 0;
         }
 
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-
-        .title {
-            font-size: 2em;
-            font-weight: bold;
+        h1 {
+            font-size: 2.5em;
             margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        .button {
-            background: #ff9800;
+        #rewardButton {
+            padding: 15px 30px;
+            font-size: 18px;
             color: white;
-            padding: 10px 20px;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
             border: none;
-            border-radius: 5px;
+            border-radius: 50px;
             cursor: pointer;
-            transition: background 0.3s;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: pulse 1.5s infinite;
         }
 
-        .button:hover {
-            background: #e68900;
+        #rewardButton:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.5);
         }
 
-        #ad-container {
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        #notification {
             margin-top: 20px;
+            padding: 10px;
+            display: none;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        #userInfo {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #bannerAd {
+            margin-top: 30px;
+            width: 100%;
+            height: 250px; /* Ukuran standar banner */
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="title">Rich Bot v1.0</div>
-        <button class="button" id="watchAd">Tonton Iklan</button>
-        <p id="balance">Saldo: Rp.0</p>
-        <div id="ad-container"></div>
-    </div>
+
+    <h1>🎉 Dapatkan Reward dari Iklan 🎁</h1>
+
+    <div id="userInfo">Memuat data Telegram...</div>
+
+    <!-- Tombol Tonton Iklan -->
+    <button id="rewardButton" onclick="showAd()">🎁 Tonton Iklan & Dapatkan Reward 🎬</button>
+
+    <!-- Banner Ad (Embedded) -->
+    <div id="bannerAd">Iklan sedang dimuat...</div>
+
+    <!-- Notifikasi -->
+    <div id="notification"></div>
 
     <script>
         // Inisialisasi Telegram WebApp
-        if (window.Telegram.WebApp) {
-            const user = window.Telegram.WebApp.initDataUnsafe.user;
-            if (user) {
-                console.log("User Info:", user);
+        let telegramUser = {};
+
+        function initTelegramWebApp() {
+            if (window.Telegram && Telegram.WebApp) {
+                try {
+                    Telegram.WebApp.ready();
+                    const user = Telegram.WebApp.initDataUnsafe?.user;
+
+                    if (user) {
+                        telegramUser = user;
+                        displayUserInfo(user);
+                        console.log("✅ Data Pengguna:", user);
+                    } else {
+                        alert("❌ Gagal memuat data Telegram.");
+                    }
+                } catch (error) {
+                    console.error("❌ Error mengambil data Telegram:", error);
+                    alert("❌ Terjadi kesalahan saat memuat data.");
+                }
             } else {
-                alert("Gagal memuat data Telegram!");
+                alert("❌ Telegram WebApp tidak tersedia.");
             }
         }
 
-        // Inisialisasi Telegram Ads (RichAds)
+        // Tampilkan Info Pengguna Telegram
+        function displayUserInfo(user) {
+            const userInfo = document.getElementById('userInfo');
+            userInfo.innerHTML = `
+                <p><strong>👤 Nama:</strong> ${user.first_name || 'Tidak ada'}</p>
+                <p><strong>📛 Username:</strong> ${user.username || 'Tidak ada'}</p>
+                <p><strong>🆔 ID:</strong> ${user.id || 'Tidak ada'}</p>
+            `;
+        }
+
+        // Inisialisasi RichAds
         window.TelegramAdsController = new TelegramAdsController();
         window.TelegramAdsController.initialize({
             pubId: "963391", // Ganti dengan pubId Anda
             appId: "1707"    // Ganti dengan appId Anda
         });
 
-        // Event Klik Tonton Iklan
-        document.getElementById('watchAd').addEventListener('click', function () {
-            window.TelegramAdsController.showAd({
-                onReward: function () {
-                    alert("Iklan selesai, saldo bertambah!");
-                    tambahSaldo(15);
-                },
-                onClose: function () {
-                    alert("Iklan ditutup sebelum selesai.");
-                },
-                onError: function (error) {
-                    alert("Gagal menampilkan iklan: " + error);
-                }
-            });
-        });
-
-        // Fungsi Tambah Saldo
-        function tambahSaldo(jumlah) {
-            let saldo = parseInt(localStorage.getItem('balance')) || 0;
-            saldo += jumlah;
-            localStorage.setItem('balance', saldo);
-            document.getElementById('balance').textContent = `Saldo: Rp.${saldo}`;
+        // Menampilkan Iklan Interstitial (Layar Penuh)
+        function showAd() {
+            if (window.TelegramAdsController) {
+                window.TelegramAdsController.showAd({
+                    onClose: function() {
+                        showNotification('✅ Terima kasih! Reward Anda telah ditambahkan.');
+                        // Tambahkan logika penambahan reward di sini
+                    },
+                    onError: function() {
+                        showNotification('❌ Iklan gagal dimuat. Coba lagi nanti.');
+                    }
+                });
+            } else {
+                showNotification('⏳ Iklan sedang dimuat. Silakan coba lagi.');
+            }
         }
 
-        // Memuat Saldo dari localStorage
-        window.onload = function () {
-            const saldo = localStorage.getItem('balance') || 0;
-            document.getElementById('balance').textContent = `Saldo: Rp.${saldo}`;
-        };
+        // Menampilkan Embedded Banner
+        function showBanner() {
+            const bannerContainer = document.getElementById('bannerAd');
+
+            if (window.TelegramAdsController) {
+                window.TelegramAdsController.showBanner(bannerContainer, {
+                    onLoad: function() {
+                        console.log("✅ Banner dimuat dengan sukses");
+                        bannerContainer.innerHTML = ''; // Bersihkan teks loading
+                    },
+                    onError: function() {
+                        bannerContainer.innerHTML = '❌ Gagal memuat banner.';
+                    }
+                });
+            } else {
+                bannerContainer.innerHTML = '❌ Banner tidak tersedia.';
+            }
+        }
+
+        // Menampilkan Notifikasi Dinamis
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.innerHTML = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+
+        // Jalankan Saat Halaman Dimuat
+        window.addEventListener('load', () => {
+            initTelegramWebApp();
+            showBanner();
+        });
     </script>
 
 </body>
