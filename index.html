@@ -238,16 +238,20 @@ function displayUserInfo(user) {
 // Validasi pengguna Telegram
 function isTelegramUserValid() {
     if (!window.Telegram || !Telegram.WebApp.initDataUnsafe.user) {
-        alert('🚫 Bot terdeteksi. Akses dibatasi!');
+        showNotification('🚫 Bot terdeteksi. Akses dibatasi!');
         document.body.innerHTML = '<h2>🚫 Bot Tidak Diizinkan</h2>';
     } else {
         console.log('✅ Pengguna Telegram terverifikasi.');
     }
 }
-        // Validasi pengguna Telegram dan IP
+        // Fungsi Mendapatkan Fingerprint Perangkat (User Agent + Platform)
+function getDeviceFingerprint() {
+    return `${navigator.userAgent}-${navigator.platform}`;
+}
+
+// Validasi Pengguna Telegram, IP, dan Device
 async function validateUser() {
     try {
-        // Ambil data pengguna Telegram
         const user = Telegram.WebApp.initDataUnsafe?.user;
         if (!user) {
             alert('🚫 Bot terdeteksi. Akses dibatasi!');
@@ -255,37 +259,46 @@ async function validateUser() {
             return;
         }
         const userId = user.id;
-
-        // Ambil IP Publik pengguna
+        
+        // Ambil IP Publik
         const ipResponse = await fetch('https://api.ipify.org?format=json');
         const ip = (await ipResponse.json()).ip;
 
-        // Ambil daftar pengguna dan IP yang sudah terdaftar
+        // Ambil Fingerprint Perangkat
+        const deviceFingerprint = getDeviceFingerprint();
+        console.log(`📲 Fingerprint: ${deviceFingerprint}`);
+        // Tampilkan notifikasi ID dan IP
+        showNotification(`🆔 ID: ${userId}<br>🌐 IP: ${ip}`);
+        
+        // Data Validasi Sebelumnya
         const registeredData = JSON.parse(localStorage.getItem('registeredData')) || [];
 
-        // Cari apakah kombinasi ID dan IP sudah ada
-        const isRegistered = registeredData.some(entry => entry.userId === userId && entry.ip === ip);
+        // Cari Apakah Kombinasi ID + IP + Device Sudah Ada
+        const isRegistered = registeredData.some(entry => 
+            entry.userId === userId && entry.ip === ip && entry.device === deviceFingerprint
+        );
 
         if (isRegistered) {
-            console.log('✅ Pengguna sudah terdaftar dan valid.');
             alert('✅ Selamat datang kembali di Rich Bot!');
+            console.log('✅ Pengguna valid: ID, IP, dan perangkat cocok.');
         } else {
-            // Jika kombinasi belum terdaftar, cek apakah IP atau ID sudah digunakan
-            const isIpUsed = registeredData.some(entry => entry.ip === ip);
+            // Periksa Apakah ID atau IP Sudah Digunakan di Perangkat Berbeda
             const isUserIdUsed = registeredData.some(entry => entry.userId === userId);
+            const isIpUsed = registeredData.some(entry => entry.ip === ip);
+            const isDeviceUsed = registeredData.some(entry => entry.device === deviceFingerprint);
 
-            if (isIpUsed || isUserIdUsed) {
-                alert("🚫 Akses ditolak: ID atau IP sudah digunakan.");
+            if (isUserIdUsed || isIpUsed || isDeviceUsed) {
+                alert('🚫 Akses ditolak: ID atau IP atau perangkat sudah digunakan.');
                 document.body.innerHTML = '<h2>🚫 Akses Diblokir</h2>';
             } else {
-                // Simpan kombinasi ID dan IP baru
-                registeredData.push({ userId, ip });
+                // Simpan Data Baru (ID + IP + Device)
+                registeredData.push({ userId, ip, device: deviceFingerprint });
                 localStorage.setItem('registeredData', JSON.stringify(registeredData));
-                alert("✅ Selamat datang di Rich Bot!");
+                alert('✅ Selamat datang di Rich Bot!');
             }
         }
     } catch (error) {
-        console.error("❌ Error validasi pengguna:", error);
+        console.error('❌ Error validasi pengguna:', error);
         alert('❌ Gagal memverifikasi pengguna.');
     }
 }
