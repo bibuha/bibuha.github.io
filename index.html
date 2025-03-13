@@ -71,6 +71,18 @@
 .fade-out {
     animation: fadeOut 1s forwards;
 }
+    .popup {
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    z-index: 999;
+    text-align: center;
+}
 
         #userInfo {
             margin: 20px 0;
@@ -123,6 +135,10 @@
     <p><strong>🚀 Booster:</strong> <span id="boosters">0</span>/6</p>
 </div>
 <div id="notification"></div>
+<div id="welcomePopup" class="popup">
+    ✅ Selamat datang kembali di Rich Bot!
+    <button onclick="closePopup()">Oke</button>
+</div>
 
     <!-- Tombol Iklan Monetag (Tombol Baru di Atas) -->
     <div class="button-container">
@@ -163,9 +179,11 @@ window.addEventListener('DOMContentLoaded',async() => {
     console.log('Isi localStorage:', localStorage);
     initTelegramWebApp();
     validateUser();   
+    showPopup();
      resetDaily();
     loadUserData();
     showBanner();
+    
     updateBoosterCount(getFromStorage('boosters') || 0);
     // Klik tombol Booster untuk menampilkan iklan
     const boosterButton = document.getElementById('rewardButton');
@@ -331,6 +349,13 @@ async function validateUser() {
 }
 // Jalankan Validasi Saat Halaman Dimuat
 validateUser();
+        function showPopup() {
+        document.getElementById('welcomePopup').style.display = 'block';
+    }
+
+    function closePopup() {
+        document.getElementById('welcomePopup').style.display = 'none';
+    }
 
 
 
@@ -527,6 +552,7 @@ function showNotification(message) {
     }, 1000); // Sinkron dengan durasi animasi
 }, 5000); // Notifikasi menghilang setelah 5 detik
 }
+          
         
         
 // Tampilkan/Sembunyikan Form Penarikan
