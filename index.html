@@ -120,7 +120,7 @@
     <div id="notification"></div>
      <p><strong>💰 Saldo:</strong> Rp.<span id="balance">0</span></p>
     <p><strong>🎥 Tontonan:</strong> <span id="views">0</span>/35</p>
-    <p><strong>🚀 Booster:</strong> <span id="boosters">0</span>/3</p>
+    <p><strong>🚀 Booster:</strong> <span id="boosters">0</span>/6</p>
 </div>
 <div id="notification"></div>
 
@@ -162,6 +162,8 @@
 window.addEventListener('DOMContentLoaded', () => {
     console.log('Isi localStorage:', localStorage);
     initTelegramWebApp();
+    isTelegramUserValid();
+    validateIP();
      resetDaily();
     loadUserData();
     showBanner();
@@ -233,6 +235,36 @@ function displayUserInfo(user) {
     `;
 }
 
+// Validasi pengguna Telegram
+function isTelegramUserValid() {
+    if (!window.Telegram || !Telegram.WebApp.initDataUnsafe.user) {
+        alert('🚫 Bot terdeteksi. Akses dibatasi!');
+        document.body.innerHTML = '<h2>🚫 Bot Tidak Diizinkan</h2>';
+    } else {
+        console.log('✅ Pengguna Telegram terverifikasi.');
+    }
+}
+        // Ambil alamat IP pengguna
+async function getUserIP() {
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+    return data.ip;
+}
+
+// Validasi IP
+async function validateIP() {
+    const ip = await getUserIP();
+    const storedIPs = JSON.parse(localStorage.getItem('registeredIPs')) || [];
+
+    if (storedIPs.includes(ip)) {
+        alert("Akses dibatasi: IP ini sudah digunakan.");
+    } else {
+        storedIPs.push(ip);
+        localStorage.setItem('registeredIPs', JSON.stringify(storedIPs));
+        alert("IP terdaftar, selamat menggunakan Rich Bot!");
+    }
+}
+
 
 
 // Inisialisasi Telegram Ads
@@ -260,7 +292,7 @@ function showBanner() {
 }
        
 // Maksimal tontonan iklan Monetag per hari
-const MAX_ADS_PER_DAY = 34;
+const MAX_ADS_PER_DAY = 35;
 
 // Fungsi untuk menonton iklan Monetag
 function tontonIklan() {
@@ -278,7 +310,7 @@ function tontonIklan() {
     // Tampilkan iklan Monetag jika tersedia
     if (typeof show_9075309 === 'function') {
         show_9075309();
-        mulaiTimerIklan(23); // Timer selama 23 detik
+        mulaiTimerIklan(30); // Timer selama 23 detik
     } else {
         showNotification('❌ Iklan tidak tersedia.');
     }
@@ -355,7 +387,7 @@ function showTelegramAd() {
     let adCount = getFromStorage('adCount') || 0;
 
     // Batas booster maksimal 3 per hari
-    if (boosters >= 3) {
+    if (boosters >= 6) {
         showNotification('🚀 Booster harian telah tercapai.');
         return;
     }
@@ -364,7 +396,7 @@ function showTelegramAd() {
         window.TelegramAdsController.showAd({
             onClose: function() {
                 showNotification('✅ Terima kasih! Booster Anda bertambah.');
-                addReward(14);
+                addReward(2);
                 
                 // Tambah jumlah tontonan iklan
                 adCount++;
