@@ -162,8 +162,7 @@
 window.addEventListener('DOMContentLoaded',async() => {
     console.log('Isi localStorage:', localStorage);
     initTelegramWebApp();
-    await validateUser(); // Validasi User + IP
-    isTelegramUserValid();    
+    validateUser();   
      resetDaily();
     loadUserData();
     showBanner();
@@ -175,6 +174,7 @@ boosterButton.addEventListener('click', showTelegramAd);
     const adsWatched = getFromStorage('adsWatched') || 0;
     document.getElementById('boosters').innerText = `${getFromStorage('boosters') || 0}/3`;
 });
+    
         
         // Fungsi Penyimpanan dengan Prefix v4_
 function saveToStorage(key, value) {
@@ -235,23 +235,26 @@ function displayUserInfo(user) {
     `;
 }
 
-// Validasi pengguna Telegram
-function isTelegramUserValid() {
-    if (!window.Telegram || !Telegram.WebApp.initDataUnsafe.user) {
-        showNotification('🚫 Bot terdeteksi. Akses dibatasi!');
-        document.body.innerHTML = '<h2>🚫 Bot Tidak Diizinkan</h2>';
-    } else {
-        console.log('✅ Pengguna Telegram terverifikasi.');
-    }
-}
-        // Fungsi Mendapatkan Fingerprint Perangkat (User Agent + Platform)
+// Fungsi Mendapatkan Fingerprint Perangkat (User Agent + Platform)
 function getDeviceFingerprint() {
     return `${navigator.userAgent}-${navigator.platform}`;
+}
+
+// Cek Apakah Diakses dari Telegram WebApp
+function isTelegramWebApp() {
+    return window.Telegram && Telegram.WebApp && Telegram.WebApp.initData;
 }
 
 // Validasi Pengguna Telegram, IP, dan Device
 async function validateUser() {
     try {
+        // Cek Akses Telegram WebApp
+        if (!isTelegramWebApp()) {
+            alert('🚫 Hanya dapat diakses melalui Telegram!');
+            document.body.innerHTML = '<h2>🚫 Akses dibatasi, buka di Telegram!</h2>';
+            return;
+        }
+
         const user = Telegram.WebApp.initDataUnsafe?.user;
         if (!user) {
             alert('🚫 Bot terdeteksi. Akses dibatasi!');
@@ -259,22 +262,20 @@ async function validateUser() {
             return;
         }
         const userId = user.id;
-        
-        // Ambil IP Publik
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ip = (await ipResponse.json()).ip;
+
+        // Ambil IP Publik (Dengan Fallback)
+        const ipResponse = await fetch('https://api.ipify.org?format=json').catch(() => null);
+        const ip = ipResponse ? (await ipResponse.json()).ip : '127.0.0.1'; // Default IP
 
         // Ambil Fingerprint Perangkat
         const deviceFingerprint = getDeviceFingerprint();
         console.log(`📲 Fingerprint: ${deviceFingerprint}`);
-        // Tampilkan notifikasi ID dan IP
-        showNotification(`🆔 ID: ${userId}<br>🌐 IP: ${ip}`);
-        
+
         // Data Validasi Sebelumnya
         const registeredData = JSON.parse(localStorage.getItem('registeredData')) || [];
 
         // Cari Apakah Kombinasi ID + IP + Device Sudah Ada
-        const isRegistered = registeredData.some(entry => 
+        const isRegistered = registeredData.some(entry =>
             entry.userId === userId && entry.ip === ip && entry.device === deviceFingerprint
         );
 
@@ -302,6 +303,8 @@ async function validateUser() {
         alert('❌ Gagal memverifikasi pengguna.');
     }
 }
+
+
 
 // Inisialisasi Telegram Ads
 window.TelegramAdsController = new TelegramAdsController();
