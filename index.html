@@ -136,10 +136,7 @@
 
 
 <button class="ad-button" onclick="toggleWithdrawForm()">💸 Cairkan Saldo</button>
-        <button class="ad-button" onclick="toggleHistory()">📜 Riwayat Penarikan</button>
-    </div>
-
-    <!-- Form Penarikan -->
+<!-- Form Penarikan -->
     <div id="withdrawForm">
         <h3>💸 Form Penarikan</h3>
         <input type="text" id="namaDANA" placeholder="Nama DANA">
@@ -147,6 +144,10 @@
         <input type="number" id="amount" placeholder="Jumlah (Min Rp.1000, kelipatan Rp.1000)">
         <button onclick="withdraw()">✅ Tarik Saldo</button>
     </div>
+        <button class="ad-button" onclick="toggleHistory()">📜 Riwayat Penarikan</button>
+    </div>
+
+    
 
     <!-- Riwayat Penarikan -->
     <div id="historySection">
@@ -156,15 +157,33 @@
     
 
     <script>
+               
+// Jalankan Saat Halaman Dimuat
+window.addEventListener('DOMContentLoaded', () => {
+    console.log('Isi localStorage:', localStorage);
+    initTelegramWebApp();
+     resetDaily();
+    loadUserData();
+    showBanner();
+    updateBoosterCount(getFromStorage('boosters') || 0);
+    // Klik tombol Booster untuk menampilkan iklan
+    const boosterButton = document.getElementById('rewardButton');
+boosterButton.addEventListener('click', showTelegramAd);
+    const balance = getFromStorage('balance') || 0;
+    const adsWatched = getFromStorage('adsWatched') || 0;
+    document.getElementById('boosters').innerText = `${getFromStorage('boosters') || 0}/3`;
+});
         
         // Fungsi Penyimpanan dengan Prefix v4_
 function saveToStorage(key, value) {
     localStorage.setItem(`v4_${key}`, JSON.stringify(value));
-}              
+    console.log(`✅ Disimpan: v4_${key} =`, value);
+}
 
 function getFromStorage(key) {
     const data = localStorage.getItem(`v4_${key}`);
-    return data ? JSON.parse(data) : null;
+    console.log(`📤 Diambil: v4_${key} =`, data);
+    return data ? JSON.parse(data) : 0;  // Pastikan default 0 jika tidak ada data
 }
                 // Reset Otomatis di Pukul 00:00
     function resetDaily() {
@@ -382,6 +401,19 @@ function addReward(amount) {
     document.getElementById('balance').innerText = newBalance;
     showNotification(`✅ Anda mendapatkan Rp.${amount}!`);
 }
+        
+        function loadUserData() {
+    const balance = getFromStorage('balance') || 0;
+    const adsWatched = getFromStorage('adsWatched') || 0;
+    const boosters = getFromStorage('boosters') || 0;
+
+    console.log(`💰 Saldo: ${balance}, 📺 Tontonan: ${adsWatched}, 🚀 Booster: ${boosters}`);
+    
+    // Tampilkan di UI
+    document.getElementById('balance').textContent = balance;
+    document.getElementById('views').textContent = adsWatched;
+    document.getElementById('boosters').textContent = boosters;
+}
 
 // Menampilkan Notifikasi Dinamis
 function showNotification(message) {
@@ -398,32 +430,17 @@ function showNotification(message) {
 }
         
         
-// Fungsi untuk memuat data dari localStorage saat halaman dimuat
-function loadUserData() {
-    const balance = getFromStorage('balance') || 0;
-    const adsWatched = getFromStorage('adsWatched') || 0;
-    const boosters = getFromStorage('boosters') || 0;
-
-    // Tampilkan data di halaman
-    document.getElementById('balance').textContent = balance;
-    document.getElementById('views').textContent = adsWatched;
-    document.getElementById('boosters').textContent = boosters;
+// Tampilkan/Sembunyikan Form Penarikan
+function toggleWithdrawForm() {
+    const form = document.getElementById('withdrawForm');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
 }
-        
-// Jalankan Saat Halaman Dimuat
-window.addEventListener('DOMContentLoaded', () => {
-    initTelegramWebApp();
-    showBanner();
-    resetDaily();
-    loadData();
-    updateBoosterCount(getFromStorage('boosters') || 0);
-    // Klik tombol Booster untuk menampilkan iklan
-    const boosterButton = document.getElementById('rewardButton');
-boosterButton.addEventListener('click', showTelegramAd);
-    const balance = getFromStorage('balance') || 0;
-    const adsWatched = getFromStorage('adsWatched') || 0;
-    document.getElementById('boosters').innerText = `${getFromStorage('boosters') || 0}/3`;
-});
+
+// Tampilkan/Sembunyikan Riwayat Penarikan
+function toggleHistory() {
+    const history = document.getElementById('historySection');
+    history.style.display = history.style.display === 'none' ? 'block' : 'none';
+}
     </script>
 
 </body>
