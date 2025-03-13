@@ -235,9 +235,9 @@ function displayUserInfo(user) {
     `;
 }
 
-// Fungsi Mendapatkan Fingerprint Unik (User Agent + Platform + Resolusi + Bahasa)
+// Fungsi Membuat Fingerprint Unik (User Agent + Platform + Resolusi + Bahasa)
 function getDeviceFingerprint() {
-    return `${navigator.userAgent}-${navigator.platform}-${screen.width}-${screen.height}-${navigator.language}`;
+    return `${navigator.userAgent}-${navigator.platform}-${screen.width}x${screen.height}-${navigator.language}`;
 }
 
 // Cek Apakah Diakses dari Telegram WebApp
@@ -248,52 +248,52 @@ function isTelegramWebApp() {
 // Validasi Pengguna Telegram, IP, dan Device
 async function validateUser() {
     try {
-        // Cek Akses Telegram WebApp
+        // Pastikan Hanya Bisa Diakses dari Telegram
         if (!isTelegramWebApp()) {
-            alert('🚫 Hanya dapat diakses melalui Telegram!');
+            alert('🚫 Hanya bisa diakses melalui Telegram!');
             document.body.innerHTML = '<h2>🚫 Akses dibatasi, buka di Telegram!</h2>';
             return;
         }
 
         const user = Telegram.WebApp.initDataUnsafe?.user;
         if (!user) {
-            alert('🚫 Bot terdeteksi. Akses dibatasi!');
+            alert('🚫 Bot terdeteksi, akses diblokir!');
             document.body.innerHTML = '<h2>🚫 Bot Tidak Diizinkan</h2>';
             return;
         }
         const userId = user.id;
 
-        // Ambil IP Publik (Fallback ke Localhost jika Gagal)
+        // Ambil IP Publik (Fallback ke 127.0.0.1 jika gagal)
         const ipResponse = await fetch('https://api.ipify.org?format=json').catch(() => null);
-        const ip = ipResponse ? (await ipResponse.json()).ip : '127.0.0.1'; // Default IP
+        const ip = ipResponse ? (await ipResponse.json()).ip : '127.0.0.1';
 
         // Ambil Fingerprint Perangkat
         const deviceFingerprint = getDeviceFingerprint();
         console.log(`📲 Fingerprint: ${deviceFingerprint}`);
 
-        // Data Validasi Sebelumnya
+        // Ambil Data Validasi Sebelumnya dari localStorage dan sessionStorage
         const registeredData = JSON.parse(localStorage.getItem('registeredData')) || [];
+        const sessionData = JSON.parse(sessionStorage.getItem('sessionData')) || null;
 
-        // Cek Apakah Kombinasi ID + Device Sudah Ada (Pengguna Lama)
+        // Cek Apakah ID + Device Sudah Terdaftar Sebelumnya
         const isRegistered = registeredData.some(entry =>
             entry.userId === userId && entry.device === deviceFingerprint
         );
 
-        if (isRegistered) {
+        // Jika Ada di sessionStorage (Cegah Refresh atau Restart)
+        if (sessionData && sessionData.userId === userId && sessionData.device === deviceFingerprint) {
             alert('✅ Selamat datang kembali di Rich Bot!');
-            console.log('✅ Pengguna valid: ID dan perangkat cocok.');
+            console.log('✅ Sesi aktif, validasi lewat.');
             return;
         }
 
-        // Validasi Ketat: Blokir Jika Akun atau Perangkat Digunakan di Tempat Lain
+        // Validasi Ketat: Cegah Akun, Perangkat, atau IP Ganda
         const isUserIdUsed = registeredData.some(entry => entry.userId === userId);
         const isDeviceUsed = registeredData.some(entry => entry.device === deviceFingerprint);
-
-        // Batasi Maksimal 1 Perangkat di 1 Jaringan (IP)
         const devicesPerIP = registeredData.filter(entry => entry.ip === ip).length;
 
         if (isUserIdUsed) {
-            alert('🚫 Akses ditolak: Akun ini sudah digunakan di perangkat lain.');
+            alert('🚫 Akses ditolak: Akun sudah digunakan di perangkat lain.');
             document.body.innerHTML = '<h2>🚫 Akses Diblokir</h2>';
         } else if (isDeviceUsed) {
             alert('🚫 Akses ditolak: Perangkat ini sudah digunakan dengan akun lain.');
@@ -306,8 +306,8 @@ async function validateUser() {
             registeredData.push({ userId, ip, device: deviceFingerprint });
             localStorage.setItem('registeredData', JSON.stringify(registeredData));
 
-            // Simpan ke sessionStorage sebagai cadangan
-            sessionStorage.setItem('userData', JSON.stringify({ userId, ip, device: deviceFingerprint }));
+            // Simpan di sessionStorage (Agar Bertahan di Sesi Ini)
+            sessionStorage.setItem('sessionData', JSON.stringify({ userId, ip, device: deviceFingerprint }));
 
             alert('✅ Selamat datang di Rich Bot!');
         }
@@ -316,6 +316,7 @@ async function validateUser() {
         alert('❌ Gagal memverifikasi pengguna.');
     }
 }
+
 
 
 // Inisialisasi Telegram Ads
