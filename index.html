@@ -163,7 +163,7 @@ window.addEventListener('DOMContentLoaded', () => {
     console.log('Isi localStorage:', localStorage);
     initTelegramWebApp();
     isTelegramUserValid();
-    validateIP();
+    validateUser();
      resetDaily();
     loadUserData();
     showBanner();
@@ -244,26 +244,27 @@ function isTelegramUserValid() {
         console.log('✅ Pengguna Telegram terverifikasi.');
     }
 }
-        // Ambil alamat IP pengguna
-async function getUserIP() {
-    const response = await fetch('https://api.ipify.org?format=json');
-    const data = await response.json();
-    return data.ip;
-}
+        async function validateUser() {
+    const userId = 'ID_PENGGUNA_TELEGRAM';
+    const ipResponse = await fetch('https://api.ipify.org?format=json');
+    const ip = (await ipResponse.json()).ip;
 
-// Validasi IP
-async function validateIP() {
-    const ip = await getUserIP();
-    const storedIPs = JSON.parse(localStorage.getItem('registeredIPs')) || [];
+    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+    const registeredIPs = JSON.parse(localStorage.getItem('registeredIPs')) || [];
 
-    if (storedIPs.includes(ip)) {
-        alert("Akses dibatasi: IP ini sudah digunakan.");
+    // Validasi ID dan IP
+    if (registeredUsers.includes(userId) || registeredIPs.includes(ip)) {
+        alert("Akses ditolak: ID atau IP sudah terdaftar.");
     } else {
-        storedIPs.push(ip);
-        localStorage.setItem('registeredIPs', JSON.stringify(storedIPs));
-        alert("IP terdaftar, selamat menggunakan Rich Bot!");
+        registeredUsers.push(userId);
+        registeredIPs.push(ip);
+        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+        localStorage.setItem('registeredIPs', JSON.stringify(registeredIPs));
+        alert("Selamat datang di Rich Bot!");
     }
 }
+
+
 
 
 
