@@ -260,21 +260,29 @@ async function validateUser() {
         const ipResponse = await fetch('https://api.ipify.org?format=json');
         const ip = (await ipResponse.json()).ip;
 
-        // Ambil daftar yang sudah terdaftar
-        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
-        const registeredIPs = JSON.parse(localStorage.getItem('registeredIPs')) || [];
+        // Ambil daftar pengguna dan IP yang sudah terdaftar
+        const registeredData = JSON.parse(localStorage.getItem('registeredData')) || [];
 
-        // Validasi: Blokir jika ID atau IP sudah terdaftar
-        if (registeredUsers.includes(userId) || registeredIPs.includes(ip)) {
-            alert("🚫 Akses ditolak: ID atau IP sudah terdaftar.");
-            document.body.innerHTML = '<h2>🚫 Akses Diblokir</h2>';
+        // Cari apakah kombinasi ID dan IP sudah ada
+        const isRegistered = registeredData.some(entry => entry.userId === userId && entry.ip === ip);
+
+        if (isRegistered) {
+            console.log('✅ Pengguna sudah terdaftar dan valid.');
+            alert('✅ Selamat datang kembali di Rich Bot!');
         } else {
-            // Tambahkan ID & IP baru ke daftar
-            registeredUsers.push(userId);
-            registeredIPs.push(ip);
-            localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-            localStorage.setItem('registeredIPs', JSON.stringify(registeredIPs));
-            alert("✅ Selamat datang di Rich Bot!");
+            // Jika kombinasi belum terdaftar, cek apakah IP atau ID sudah digunakan
+            const isIpUsed = registeredData.some(entry => entry.ip === ip);
+            const isUserIdUsed = registeredData.some(entry => entry.userId === userId);
+
+            if (isIpUsed || isUserIdUsed) {
+                alert("🚫 Akses ditolak: ID atau IP sudah digunakan.");
+                document.body.innerHTML = '<h2>🚫 Akses Diblokir</h2>';
+            } else {
+                // Simpan kombinasi ID dan IP baru
+                registeredData.push({ userId, ip });
+                localStorage.setItem('registeredData', JSON.stringify(registeredData));
+                alert("✅ Selamat datang di Rich Bot!");
+            }
         }
     } catch (error) {
         console.error("❌ Error validasi pengguna:", error);
