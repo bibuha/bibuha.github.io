@@ -235,9 +235,9 @@ function displayUserInfo(user) {
     `;
 }
 
-// Fungsi Mendapatkan Fingerprint Perangkat (User Agent + Platform)
+// Fungsi Mendapatkan Fingerprint Unik (User Agent + Platform + Resolusi + Bahasa)
 function getDeviceFingerprint() {
-    return `${navigator.userAgent}-${navigator.platform}`;
+    return `${navigator.userAgent}-${navigator.platform}-${screen.width}-${screen.height}-${navigator.language}`;
 }
 
 // Cek Apakah Diakses dari Telegram WebApp
@@ -263,7 +263,7 @@ async function validateUser() {
         }
         const userId = user.id;
 
-        // Ambil IP Publik (Dengan Fallback)
+        // Ambil IP Publik (Fallback ke Localhost jika Gagal)
         const ipResponse = await fetch('https://api.ipify.org?format=json').catch(() => null);
         const ip = ipResponse ? (await ipResponse.json()).ip : '127.0.0.1'; // Default IP
 
@@ -274,36 +274,48 @@ async function validateUser() {
         // Data Validasi Sebelumnya
         const registeredData = JSON.parse(localStorage.getItem('registeredData')) || [];
 
-        // Cari Apakah Kombinasi ID + IP + Device Sudah Ada
+        // Cek Apakah Kombinasi ID + Device Sudah Ada (Pengguna Lama)
         const isRegistered = registeredData.some(entry =>
-            entry.userId === userId && entry.ip === ip && entry.device === deviceFingerprint
+            entry.userId === userId && entry.device === deviceFingerprint
         );
 
         if (isRegistered) {
             alert('✅ Selamat datang kembali di Rich Bot!');
-            console.log('✅ Pengguna valid: ID, IP, dan perangkat cocok.');
-        } else {
-            // Periksa Apakah ID atau IP Sudah Digunakan di Perangkat Berbeda
-            const isUserIdUsed = registeredData.some(entry => entry.userId === userId);
-            const isIpUsed = registeredData.some(entry => entry.ip === ip);
-            const isDeviceUsed = registeredData.some(entry => entry.device === deviceFingerprint);
+            console.log('✅ Pengguna valid: ID dan perangkat cocok.');
+            return;
+        }
 
-            if (isUserIdUsed || isIpUsed || isDeviceUsed) {
-                alert('🚫 Akses ditolak: ID atau IP atau perangkat sudah digunakan.');
-                document.body.innerHTML = '<h2>🚫 Akses Diblokir</h2>';
-            } else {
-                // Simpan Data Baru (ID + IP + Device)
-                registeredData.push({ userId, ip, device: deviceFingerprint });
-                localStorage.setItem('registeredData', JSON.stringify(registeredData));
-                alert('✅ Selamat datang di Rich Bot!');
-            }
+        // Validasi Ketat: Blokir Jika Akun atau Perangkat Digunakan di Tempat Lain
+        const isUserIdUsed = registeredData.some(entry => entry.userId === userId);
+        const isDeviceUsed = registeredData.some(entry => entry.device === deviceFingerprint);
+
+        // Batasi Maksimal 1 Perangkat di 1 Jaringan (IP)
+        const devicesPerIP = registeredData.filter(entry => entry.ip === ip).length;
+
+        if (isUserIdUsed) {
+            alert('🚫 Akses ditolak: Akun ini sudah digunakan di perangkat lain.');
+            document.body.innerHTML = '<h2>🚫 Akses Diblokir</h2>';
+        } else if (isDeviceUsed) {
+            alert('🚫 Akses ditolak: Perangkat ini sudah digunakan dengan akun lain.');
+            document.body.innerHTML = '<h2>🚫 Perangkat Tidak Diizinkan</h2>';
+        } else if (devicesPerIP >= 1) {
+            alert('🚫 Akses dibatasi: Hanya 1 perangkat yang diizinkan di jaringan ini.');
+            document.body.innerHTML = '<h2>🚫 Batas Perangkat Tercapai</h2>';
+        } else {
+            // Simpan Data Baru (ID + IP + Device)
+            registeredData.push({ userId, ip, device: deviceFingerprint });
+            localStorage.setItem('registeredData', JSON.stringify(registeredData));
+
+            // Simpan ke sessionStorage sebagai cadangan
+            sessionStorage.setItem('userData', JSON.stringify({ userId, ip, device: deviceFingerprint }));
+
+            alert('✅ Selamat datang di Rich Bot!');
         }
     } catch (error) {
         console.error('❌ Error validasi pengguna:', error);
         alert('❌ Gagal memverifikasi pengguna.');
     }
 }
-
 
 
 // Inisialisasi Telegram Ads
