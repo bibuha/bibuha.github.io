@@ -307,8 +307,7 @@ async function validateUser() {
         const sessionData = JSON.parse(localStorage.getItem('sessionData')) || null;
 
         // Jika Ada di sessionStorage (Cegah Refresh atau Restart)
-        if (sessionData && sessionData.userId === userId && sessionData.device === deviceFingerprint) {
-            alert('✅ Selamat datang kembali di Rich Bot!');
+        if (sessionData && sessionData.userId === userId && sessionData.device === deviceFingerprint) {            
             console.log('✅ Sesi aktif, validasi lewat.');
             return;
         }
