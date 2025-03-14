@@ -129,32 +129,6 @@
             padding: 10px;
             border-radius: 5px;
         }
-    /* Gaya Notifikasi booster*/
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    z-index: 9999;
-}
-    /* Gaya Tombol booster */
-.ad-button {
-    padding: 10px 20px;
-    font-size: 18px;
-    background: #ff4757;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.ad-button:disabled {
-    background: #888888;
-    cursor: not-allowed;
-}
     </style>
 </head>
 
@@ -184,10 +158,8 @@
     </div>
 
     <!-- Tombol Iklan Telegram (Tombol Lama) -->
-<p>Booster: <span id="boosterCount">0</span> | Iklan: <span id="boosterAds">0/21</span></p>
-
     <div class="button-container">
-        <button class="ad-button" id="rewardButton">🚀booster🚀</button>
+        <button class="ad-button" id="rewardButton" onclick="showTelegramAd()">🚀booster🚀</button>
     </div>
 
 
@@ -215,29 +187,22 @@
     <script>
                
 // Jalankan Saat Halaman Dimuat
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded',async() => {
     console.log('Isi localStorage:', localStorage);
-    resetDaily();
     initTelegramWebApp();
     validateUser();   
-    showPopup();    
+    showPopup();
+     resetDaily();
     loadUserData();
     showBanner();
-    resetDailyBooster();
-    updateBalanceDisplay();
-    updateBoosterUI(getFromStorage('boosterAds'), getFromStorage('boosterAds'));
-    updateBoosterCount(getFromStorage('booster') || 0);
-
-    // Pastikan event listener tidak ditambahkan berulang
+    
+    updateBoosterCount(getFromStorage('boosters') || 0);
+    // Klik tombol Booster untuk menampilkan iklan
     const boosterButton = document.getElementById('rewardButton');
-    if (!boosterButton.hasListener) {
-        boosterButton.addEventListener('click', showTelegramAd);
-        boosterButton.hasListener = true; // Tandai bahwa listener sudah ditambahkan
-    }
-
+boosterButton.addEventListener('click', showTelegramAd);
     const balance = getFromStorage('balance') || 0;
     const adsWatched = getFromStorage('adsWatched') || 0;
-    document.getElementById('booster').innerText = `${getFromStorage('boosterAds') || 0}/21`;
+    document.getElementById('boosters').innerText = `${getFromStorage('boosters') || 0}/3`;
 });
     
         
@@ -248,22 +213,22 @@ function saveToStorage(key, value) {
 }
 
 function getFromStorage(key) {
-    const value = localStorage.getItem(`v4_${key}`);
-    console.log(`📤 Diambil: v4_${key} =`, value);
-    return value ? JSON.parse(value) : 0;  // Pastikan default 0 jika tidak ada data
+    const data = localStorage.getItem(`v4_${key}`);
+    console.log(`📤 Diambil: v4_${key} =`, data);
+    return data ? JSON.parse(data) : 0;  // Pastikan default 0 jika tidak ada data
 }
-                // Reset otomatis pukul 00:00 (dengan validasi waktu)
-function resetDaily() {
-    const lastReset = getFromStorage('dailyReset');
-    const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+                // Reset Otomatis di Pukul 00:00
+    function resetDaily() {
+        const lastReset = getFromStorage('lastReset');
+        const today = new Date().toLocaleDateString();
 
-    if (lastReset !== today) {
-        saveToStorage('adsWatched', 0);  // Reset jumlah iklan Monetag
-         saveToStorage('boosterAds', 0);  // Reset batas booster
-        saveToStorage('dailyReset', today); // Perbarui tanggal reset
-        console.log('🔄 Data di-reset otomatis pada:', today);
+        if (lastReset !== today) {
+            saveToStorage('adsWatched', 0);  // Reset jumlah iklan Monetag
+            saveToStorage('boosters', 0);    // Reset booster Telegram
+            saveToStorage('lastReset', today); // Perbarui tanggal terakhir reset
+            console.log('🔄 Data telah di-reset otomatis.');
+        }
     }
-}
        // Inisialisasi Telegram WebApp
 let telegramUser = {};
 
@@ -312,21 +277,12 @@ function isTelegramWebApp() {
 
 // Bersihkan Data Validasi Lama (>24 jam)
 function cleanOldData() {
-    const registeredData = getFromStorage('registeredData') || [];
-    if (!Array.isArray(registeredData)) {
-        console.error('❌ Data tidak valid, mengatur ulang.');
-        saveToStorage('registeredData', []);
-        return;
-    }
-
+    const registeredData = JSON.parse(localStorage.getItem('registeredData')) || [];
     const now = Date.now();
     const expiredTime = 24 * 60 * 60 * 1000; // 24 jam
 
-    const cleanedData = registeredData.filter(entry => 
-        entry && typeof entry.timestamp === 'number' && now - entry.timestamp < expiredTime
-    );
-
-    saveToStorage('registeredData', cleanedData);
+    const cleanedData = registeredData.filter(entry => now - entry.timestamp < expiredTime);
+    localStorage.setItem('registeredData', JSON.stringify(cleanedData));
 }
 
 // Validasi Pengguna Telegram, IP, dan Device
@@ -335,14 +291,13 @@ async function validateUser() {
         // Bersihkan data lama
         cleanOldData();
 
-        // Pastikan hanya diakses melalui Telegram
+        // Pastikan Hanya Bisa Diakses dari Telegram
         if (!isTelegramWebApp()) {
             alert('🚫 Hanya bisa diakses melalui Telegram!');
             document.body.innerHTML = '<h2>🚫 Akses dibatasi, buka di Telegram!</h2>';
             return;
         }
 
-        // Validasi user Telegram
         const user = Telegram.WebApp.initDataUnsafe?.user;
         if (!user) {
             alert('🚫 Bot terdeteksi, akses diblokir!');
@@ -351,21 +306,21 @@ async function validateUser() {
         }
         const userId = user.id;
 
-        // Ambil IP Publik (fallback ke 127.0.0.1 jika gagal)
+        // Ambil IP Publik (Fallback ke 127.0.0.1 jika gagal)
         const ipResponse = await fetch('https://api.ipify.org?format=json').catch(() => null);
         const ip = ipResponse ? (await ipResponse.json()).ip : '127.0.0.1';
 
-        // Ambil fingerprint perangkat
+        // Ambil Fingerprint Perangkat
         const deviceFingerprint = getDeviceFingerprint();
         console.log(`📲 Fingerprint: ${deviceFingerprint}`);
 
-        // Ambil data validasi sebelumnya
-        const registeredData = getFromStorage('v4_registeredData') || [];
-        const sessionData = getFromSession('sessionData') || null;
+        // Ambil Data Validasi Sebelumnya
+        const registeredData = JSON.parse(localStorage.getItem('registeredData')) || [];
+        const sessionData = JSON.parse(localStorage.getItem('sessionData')) || null;
 
-        // Cegah validasi ulang di sesi aktif
-        if (sessionData && sessionData.userId === userId && sessionData.device === deviceFingerprint) {
-            console.log('✅ Sesi aktif, validasi dilewati.');
+        // Jika Ada di sessionStorage (Cegah Refresh atau Restart)
+        if (sessionData && sessionData.userId === userId && sessionData.device === deviceFingerprint) {            
+            console.log('✅ Sesi aktif, validasi lewat.');
             return;
         }
 
@@ -377,25 +332,25 @@ async function validateUser() {
         if (isUserIdUsed) {
             // Hapus perangkat lama jika akun digunakan di perangkat baru
             const updatedData = registeredData.filter(entry => entry.userId !== userId);
-            saveToStorage('v4_registeredData', updatedData);
+            localStorage.setItem('registeredData', JSON.stringify(updatedData));
             console.log('🔄 Perangkat lama dihapus, akses diperbarui.');
         } else if (isDeviceUsed) {
             alert('🚫 Akses ditolak: Perangkat ini sudah digunakan dengan akun lain.');
             document.body.innerHTML = '<h2>🚫 Perangkat Tidak Diizinkan</h2>';
             return;
-        } else if (devicesPerIP >= 1) { // Mengizinkan 2 perangkat di jaringan yang sama
-            alert('🚫 Akses dibatasi: Maksimal 2 perangkat di jaringan ini.');
+        } else if (devicesPerIP >= 1) {
+            alert('🚫 Akses dibatasi: Hanya 1 perangkat yang diizinkan di jaringan ini.');
             document.body.innerHTML = '<h2>🚫 Batas Perangkat Tercapai</h2>';
             return;
         }
 
-        // Simpan data baru (ID + IP + Device)
+        // Simpan Data Baru (ID + IP + Device)
         const newEntry = { userId, ip, device: deviceFingerprint, timestamp: Date.now() };
         registeredData.push(newEntry);
-        saveToStorage('v4_registeredData', registeredData);
+        localStorage.setItem('registeredData', JSON.stringify(registeredData));
 
-        // Simpan di sessionStorage (Hanya bertahan di sesi ini)
-        saveToSession('sessionData', newEntry);
+        // Simpan di sessionStorage (Agar Bertahan di Sesi Ini)
+        localStorage.setItem('sessionData', JSON.stringify({ userId, ip, device: deviceFingerprint }));
 
         alert('✅ Selamat datang di Rich Bot!');
     } catch (error) {
@@ -464,7 +419,7 @@ function tontonIklan() {
     }
 }
 
-// Fungsi Timer untuk Iklan Monetag (dengan booster)
+// Fungsi Timer untuk Iklan Monetag
 function mulaiTimerIklan(durasi) {
     const button = document.getElementById('monetagButton');
     button.disabled = true; // Nonaktifkan tombol saat timer berjalan
@@ -476,18 +431,14 @@ function mulaiTimerIklan(durasi) {
 
         if (waktu < 0) {
             clearInterval(timer);
-
-            // Hitung reward (Rp.10 + booster)
-            let boosters = getFromStorage('boosters') || 0;
-            let reward = 10 + boosters; // Reward dasar + jumlah booster
-            addReward(reward);
+            addReward(10); // Tambah saldo Rp.10 setelah iklan selesai
 
             // Tambahkan jumlah tonton setelah iklan selesai
             let adsWatched = getFromStorage('adsWatched') || 0;
             adsWatched++;
             saveToStorage('adsWatched', adsWatched);
 
-            button.innerText = `🎥 Tonton Iklan Rp.${reward} 🎥`;
+            button.innerText = '🎥Tonton Iklan Rp.10🎥';
             button.disabled = false;
 
             // Validasi batas harian setelah selesai
@@ -497,21 +448,18 @@ function mulaiTimerIklan(durasi) {
             }
 
             // Perbarui tampilan jumlah tontonan
-            document.getElementById('views').innerText = `${adsWatched}/${MAX_ADS_PER_DAY}`;
-            showNotification(`🎉 Iklan selesai! Anda mendapat Rp.${reward}`);
+            document.getElementById('views').innerText = `${adsWatched}/35`;
+            showNotification('🎉 Iklan selesai! Anda mendapat Rp.10');
         }
     }, 1000);
 }
-        
-
-// Fungsi Menambah Saldo
+        // Fungsi untuk menambah saldo
 function addReward(amount) {
     let balance = getFromStorage('balance') || 0;
     balance += amount;
-
     saveToStorage('balance', balance);
-    document.getElementById('balance').innerText = `Rp.${balance}`;
-    console.log(`💰 Saldo bertambah: Rp.${amount}, Total: Rp.${balance}`);
+    document.getElementById('balance').innerText = balance;
+    updateBalanceDisplay();
 }
 
 // Fungsi Memperbarui Tampilan Saldo & Tontonan
@@ -521,13 +469,10 @@ function updateBalanceDisplay() {
     const boosters = getFromStorage('boosters') || 0;
 
     document.getElementById('balance').innerText = balance;
-    document.getElementById('views').innerText = `${adsWatched}/${MAX_ADS_PER_DAY}`;
+    document.getElementById('views').innerText = adsWatched;
     document.getElementById('boosters').innerText = boosters;
-
-    // Perbarui teks tombol sesuai reward
-    const monetagButton = document.getElementById('monetagButton');
-    monetagButton.innerText = `🎥 Tonton Iklan Rp.${10 + boosters} 🎥`;
 }
+
 // Simpan ke localStorage (v4_)
 function saveToStorage(key, value) {
     localStorage.setItem(`v4_${key}`, JSON.stringify(value));
@@ -539,121 +484,71 @@ function getFromStorage(key) {
     return data ? JSON.parse(data) : null;
 }
 
-// Status apakah iklan sedang berjalan
-let isAdPlaying = false;
-
-// Fungsi Menampilkan Iklan Booster
+// Fungsi untuk memanggil iklan Telegram Booster
 function showTelegramAd() {
-    if (isAdPlaying) {
-        showNotification("⏳ Iklan sedang berjalan...");
-        return; // Mencegah pemanggilan ulang saat iklan aktif
-    }
+    let boosters = getFromStorage('boosters') || 0;
+    let adCount = getFromStorage('adCount') || 0;
 
-    // Validasi koneksi internet
-    if (!navigator.onLine) {
-        showNotification("⚠️ Tidak ada koneksi internet!");
+    // Batas booster maksimal 3 per hari
+    if (boosters >= 6) {
+        showNotification('🚀 Booster harian telah tercapai.');
         return;
     }
 
-    // Ambil data dari localStorage
-    let boosterAds = getFromStorage('boosterAds') || 0; // Jumlah iklan yang ditonton
-    let boosters = getFromStorage('boosters') || 0;     // Jumlah booster
+    if (window.TelegramAdsController) {
+        window.TelegramAdsController.showAd({
+            onClose: function() {
+                showNotification('✅ Terima kasih! Booster Anda bertambah.');
+                addReward(2);
+                
+                // Tambah jumlah tontonan iklan
+                adCount++;
+                saveToStorage('adCount', adCount);
 
-    // Validasi batas maksimal iklan booster (21 kali per hari)
-    if (boosterAds >= 21) {
-        showNotification("❌ Limit booster hari ini tercapai!");
-        return;
-    }
+                // Tambah booster setelah menonton 5 iklan
+                if (adCount % 5 === 0) {
+                    boosters += 2; // Tambah 2 booster setiap 5 iklan
+                    showNotification('🎉 Bonus! Anda mendapat 2 Booster tambahan.');
+                } else {
+                    boosters++;
+                }
 
-    // Validasi ketersediaan TelegramAdsController
-    if (window.TelegramAdsController && typeof window.TelegramAdsController.showAd === 'function') {
-        isAdPlaying = true; // Set status iklan sedang berjalan
-
-        try {
-            // Tampilkan iklan Telegram
-            window.TelegramAdsController.showAd()
-                .then(() => {
-                    // Jika iklan berhasil ditampilkan, update data
-                    boosterAds++;
-                    saveToStorage('boosterAds', boosterAds);
-
-                    // Setiap 3 kali nonton, booster bertambah 1
-                    if (boosterAds % 3 === 0) {
-                        boosters++;
-                        saveToStorage('boosters', boosters);
-                    }
-
-                    // Perbarui UI setelah iklan
-                    updateBoosterUI(boosters, boosterAds);
-                    showNotification("✅ Booster berhasil ditambahkan!");
-
-                    // Nonaktifkan tombol selama 1 menit (dengan countdown)
-                    disableBoosterButtonWithCountdown();
-                })
-                .catch(() => {
-                    showNotification("⚠️ Iklan gagal dimuat. Coba lagi nanti.");
-                })
-                .finally(() => {
-                    isAdPlaying = false; // Reset status setelah selesai
-                });
-        } catch (error) {
-            isAdPlaying = false; // Pastikan reset jika terjadi error
-            showNotification("❌ Terjadi kesalahan saat memuat iklan.");
-        }
+                saveToStorage('boosters', boosters);
+                updateBoosterCount(boosters);
+            },
+            onError: function() {
+                showNotification('❌ Iklan gagal dimuat. Coba lagi nanti.');
+            }
+        });
     } else {
-        showNotification("❌ Iklan tidak tersedia saat ini.");
+        showNotification('⏳ Iklan Telegram sedang dimuat. Silakan coba lagi.');
     }
 }
-
-// Fungsi Nonaktifkan Tombol Booster dengan Countdown
-function disableBoosterButtonWithCountdown() {
-    const button = document.getElementById('rewardButton'); // Perbaikan id tombol
-    if (!button) return;
-
-    let countdown = 60; // Waktu hitung mundur dalam detik
-    button.disabled = true;
-
-    const interval = setInterval(() => {
-        button.textContent = `⏳ Tunggu ${countdown}s`;
-        countdown--;
-
-        if (countdown < 0) {
-            clearInterval(interval);
-            button.textContent = "🚀 Tonton Iklan Booster";
-            button.disabled = false; // Aktifkan kembali tombol
-        }
-    }, 1000);
+        function updateBoosterCount(boosters) {
+    document.getElementById('boosters').innerText = `${boosters}/3`;
 }
 
-// Fungsi Menyimpan Data di localStorage
-function saveToStorage(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
+// Tambahkan Reward ke Saldo (Dengan Penyimpanan v4_)
+function addReward(amount) {
+    const currentBalance = getFromStorage('balance') || 0;
+    const newBalance = currentBalance + amount;
+    saveToStorage('balance', newBalance);
+    document.getElementById('balance').innerText = newBalance;
+    showNotification(`✅ Anda mendapatkan Rp.${amount}!`);
 }
+        
+        function loadUserData() {
+    const balance = getFromStorage('balance') || 0;
+    const adsWatched = getFromStorage('adsWatched') || 0;
+    const boosters = getFromStorage('boosters') || 0;
 
-// Fungsi Mengambil Data dari localStorage
-function getFromStorage(key) {
-    return JSON.parse(localStorage.getItem(key));
+    console.log(`💰 Saldo: ${balance}, 📺 Tontonan: ${adsWatched}, 🚀 Booster: ${boosters}`);
+    
+    // Tampilkan di UI
+    document.getElementById('balance').textContent = balance;
+    document.getElementById('views').textContent = adsWatched;
+    document.getElementById('boosters').textContent = boosters;
 }
-
-// Fungsi Perbarui Tampilan Booster di UI
-function updateBoosterUI(boosters, boosterAds) {
-    document.getElementById('boosterCount').textContent = boosters;
-    document.getElementById('boosterAds').textContent = `${boosterAds}/21`;
-}
-
-// Reset Otomatis setiap 00:00
-function resetDailyBooster() {
-    const lastReset = getFromStorage('lastReset') || new Date().toDateString();
-    const today = new Date().toDateString();
-
-    if (lastReset !== today) {
-        saveToStorage('boosterAds', 0);
-        saveToStorage('booster', 0);
-        saveToStorage('lastReset', today);
-        updateBoosterUI(0, 0);
-    }
-}
-
 
 // Menampilkan Notifikasi Dinamis
 function showNotification(message) {
@@ -672,128 +567,15 @@ function showNotification(message) {
         
         
 // Tampilkan/Sembunyikan Form Penarikan
-function withdraw() {
-    const namaDANA = document.getElementById('namaDANA').value.trim();
-    const noDANA = document.getElementById('noDANA').value.trim();
-    const amount = parseInt(document.getElementById('amount').value, 10);
-    const balance = getFromStorage('balance');
-    
-    // Ambil data pengguna (nama, username, ID Telegram)
-    const namaUser = getFromStorage('namaUser') || 'Tidak Diketahui';
-    const username = getFromStorage('username') || 'Tidak Ada';
-    const userID = getFromStorage('userID') || 'rcbt';
-
-    // Validasi Input
-    if (namaDANA.length < 3) {
-        showNotification("❌ Nama DANA minimal 3 karakter!");
-        return;
-    }
-    if (!/^\d{10,13}$/.test(noDANA)) {
-        showNotification("❌ Nomor DANA harus 10-13 digit!");
-        return;
-    }
-    if (amount < 1000 || amount % 1000 !== 0) {
-        showNotification("❌ Minimal Rp.1000 dan kelipatan Rp.1000!");
-        return;
-    }
-    if (amount > balance) {
-        showNotification("❌ Saldo tidak mencukupi!");
-        return;
-    }
-
-    // Konfirmasi penarikan
-    if (!confirm(`Konfirmasi Penarikan\nJumlah: Rp.${amount.toLocaleString()}\nNama DANA: ${namaDANA}\nNomor DANA: ${noDANA}`)) {
-        return;
-    }
-
-    // Proses pengurangan saldo
-    const newBalance = balance - amount;
-    saveToStorage('balance', newBalance);
-    saveToStorage('lastWithdrawDate', new Date().toLocaleDateString('id-ID'));
-
-    // Simpan riwayat penarikan
-    saveWithdrawHistory(namaDANA, noDANA, amount, namaUser, username, userID, newBalance);
-
-    // Tampilkan notifikasi berhasil
-    showNotification(`✅ Penarikan Rp.${amount.toLocaleString()} berhasil!`);
-    document.getElementById('withdrawForm').reset();
-    updateBalanceUI();
+function toggleWithdrawForm() {
+    const form = document.getElementById('withdrawForm');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
 }
 
-// Fungsi menyimpan riwayat penarikan
-function saveWithdrawHistory(namaDANA, noDANA, amount, namaUser, username, userID, newBalance) {
-    const history = getFromStorage('withdrawHistory') || [];
-    const timestamp = new Date();
-    const newRecord = {
-        namaDANA,
-        noDANA,
-        amount,
-        namaUser,
-        username,
-        userID,
-        sisaSaldo: newBalance,
-        status: '✅ Berhasil',
-        date: timestamp.toLocaleString('id-ID'),
-    };
-    history.push(newRecord);
-    saveToStorage('withdrawHistory', history);
-    updateWithdrawHistoryUI();
-
-    // Kirim riwayat ke channel Telegram
-    sendToTelegram(newRecord);
-}
-
-// Fungsi memperbarui tampilan riwayat penarikan di aplikasi
-function updateWithdrawHistoryUI() {
-    const history = getFromStorage('withdrawHistory') || [];
-    const historyContainer = document.getElementById('withdrawHistory');
-    historyContainer.innerHTML = "";
-
-    history.forEach((record) => {
-        const recordHTML = `
-            <div class="history-item">
-                <hr>
-                <p>🟢 <strong>Penarikan Berhasil</strong> 🟢</p>
-                <p>💰 <strong>Jumlah:</strong> Rp.${record.amount.toLocaleString()}</p>
-                <p>👤 <strong>Nama DANA:</strong> ${record.namaDANA}</p>
-                <p>📞 <strong>No DANA:</strong> ${record.noDANA}</p>
-                <p>📌 <strong>Nama:</strong> ${record.namaUser}</p>
-                <p>📛 <strong>Username:</strong> ${record.username}</p>
-                <p>🆔 <strong>ID:</strong> ${record.userID}</p>
-                <p>💵 <strong>Sisa Saldo:</strong> Rp.${record.sisaSaldo.toLocaleString()}</p>
-                <p>🗓️ <strong>Waktu:</strong> ${record.date}</p>
-                <p>🚀 <strong>rcbt v.4.0</strong></p>
-                <hr>
-            </div>
-        `;
-        historyContainer.innerHTML += recordHTML;
-    });
-}
-
-// Fungsi mengirim riwayat ke channel Telegram
-function sendToTelegram(record) {
-    const botToken = '7934521155:AAFpmSROBYB2g0kEt5wzH3KIzcTmUr-AKeo';
-    const chatID = '@richbot_channel';
-    const message = `
-🟢 *Penarikan Berhasil* 🟢
-
-💰 Jumlah: Rp.${record.amount.toLocaleString()}
-👤 Nama DANA: ${record.namaDANA}
-📞 No DANA: ${record.noDANA}
-
-📌 Nama: ${record.namaUser}
-📛 Username: ${record.username}
-🆔 ID: ${record.userID}
-
-💵 Sisa Saldo: Rp.${record.sisaSaldo.toLocaleString()}
-🗓️ Waktu: ${record.date}
-🚀 rcbt v.4.0
-    `;
-    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatID, text: message, parse_mode: 'Markdown' }),
-    });
+// Tampilkan/Sembunyikan Riwayat Penarikan
+function toggleHistory() {
+    const history = document.getElementById('historySection');
+    history.style.display = history.style.display === 'none' ? 'block' : 'none';
 }
     </script>
 
