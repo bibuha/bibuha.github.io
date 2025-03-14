@@ -215,24 +215,29 @@
     <script>
                
 // Jalankan Saat Halaman Dimuat
-window.addEventListener('DOMContentLoaded',async() => {
+window.addEventListener('DOMContentLoaded', async () => {
     console.log('Isi localStorage:', localStorage);
+
     initTelegramWebApp();
     validateUser();   
     showPopup();
-     resetDaily();
+    resetDaily();
     loadUserData();
     showBanner();
     resetDailyBooster();
-updateBoosterUI(getFromStorage('boosters'), getFromStorage('boosterAds'));
-    
+    updateBoosterUI(getFromStorage('boosters'), getFromStorage('boosterAds'));
     updateBoosterCount(getFromStorage('boosters') || 0);
-    // Klik tombol Booster untuk menampilkan iklan
+
+    // Pastikan event listener tidak ditambahkan berulang
     const boosterButton = document.getElementById('rewardButton');
-boosterButton.addEventListener('click', showTelegramAd);
+    if (!boosterButton.hasListener) {
+        boosterButton.addEventListener('click', showTelegramAd);
+        boosterButton.hasListener = true; // Tandai bahwa listener sudah ditambahkan
+    }
+
     const balance = getFromStorage('balance') || 0;
     const adsWatched = getFromStorage('adsWatched') || 0;
-    document.getElementById('boosters').innerText = `${getFromStorage('boosters') || 0}/3`;
+    document.getElementById('boosters').innerText = `${getFromStorage('boosters') || 0}/21`;
 });
     
         
@@ -488,6 +493,7 @@ function mulaiTimerIklan(durasi) {
         }
     }, 1000);
 }
+        
 
 // Fungsi Menambah Saldo
 function addReward(amount) {
@@ -587,7 +593,12 @@ function showTelegramAd() {
     } else {
         showNotification("❌ Iklan tidak tersedia saat ini.");
     }
+     function showTelegramAd() {
+    console.log('Iklan dipanggil sekali');
+    showAd();
 }
+}
+       
 
 // Fungsi Nonaktifkan Tombol Booster dengan Countdown
 function disableBoosterButtonWithCountdown() {
@@ -657,15 +668,128 @@ function showNotification(message) {
         
         
 // Tampilkan/Sembunyikan Form Penarikan
-function toggleWithdrawForm() {
-    const form = document.getElementById('withdrawForm');
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+function withdraw() {
+    const namaDANA = document.getElementById('namaDANA').value.trim();
+    const noDANA = document.getElementById('noDANA').value.trim();
+    const amount = parseInt(document.getElementById('amount').value, 10);
+    const balance = getFromStorage('balance');
+    
+    // Ambil data pengguna (nama, username, ID Telegram)
+    const namaUser = getFromStorage('namaUser') || 'Tidak Diketahui';
+    const username = getFromStorage('username') || 'Tidak Ada';
+    const userID = getFromStorage('userID') || 'rcbt';
+
+    // Validasi Input
+    if (namaDANA.length < 3) {
+        showNotification("❌ Nama DANA minimal 3 karakter!");
+        return;
+    }
+    if (!/^\d{10,13}$/.test(noDANA)) {
+        showNotification("❌ Nomor DANA harus 10-13 digit!");
+        return;
+    }
+    if (amount < 1000 || amount % 1000 !== 0) {
+        showNotification("❌ Minimal Rp.1000 dan kelipatan Rp.1000!");
+        return;
+    }
+    if (amount > balance) {
+        showNotification("❌ Saldo tidak mencukupi!");
+        return;
+    }
+
+    // Konfirmasi penarikan
+    if (!confirm(`Konfirmasi Penarikan\nJumlah: Rp.${amount.toLocaleString()}\nNama DANA: ${namaDANA}\nNomor DANA: ${noDANA}`)) {
+        return;
+    }
+
+    // Proses pengurangan saldo
+    const newBalance = balance - amount;
+    saveToStorage('balance', newBalance);
+    saveToStorage('lastWithdrawDate', new Date().toLocaleDateString('id-ID'));
+
+    // Simpan riwayat penarikan
+    saveWithdrawHistory(namaDANA, noDANA, amount, namaUser, username, userID, newBalance);
+
+    // Tampilkan notifikasi berhasil
+    showNotification(`✅ Penarikan Rp.${amount.toLocaleString()} berhasil!`);
+    document.getElementById('withdrawForm').reset();
+    updateBalanceUI();
 }
 
-// Tampilkan/Sembunyikan Riwayat Penarikan
-function toggleHistory() {
-    const history = document.getElementById('historySection');
-    history.style.display = history.style.display === 'none' ? 'block' : 'none';
+// Fungsi menyimpan riwayat penarikan
+function saveWithdrawHistory(namaDANA, noDANA, amount, namaUser, username, userID, newBalance) {
+    const history = getFromStorage('withdrawHistory') || [];
+    const timestamp = new Date();
+    const newRecord = {
+        namaDANA,
+        noDANA,
+        amount,
+        namaUser,
+        username,
+        userID,
+        sisaSaldo: newBalance,
+        status: '✅ Berhasil',
+        date: timestamp.toLocaleString('id-ID'),
+    };
+    history.push(newRecord);
+    saveToStorage('withdrawHistory', history);
+    updateWithdrawHistoryUI();
+
+    // Kirim riwayat ke channel Telegram
+    sendToTelegram(newRecord);
+}
+
+// Fungsi memperbarui tampilan riwayat penarikan di aplikasi
+function updateWithdrawHistoryUI() {
+    const history = getFromStorage('withdrawHistory') || [];
+    const historyContainer = document.getElementById('withdrawHistory');
+    historyContainer.innerHTML = "";
+
+    history.forEach((record) => {
+        const recordHTML = `
+            <div class="history-item">
+                <hr>
+                <p>🟢 <strong>Penarikan Berhasil</strong> 🟢</p>
+                <p>💰 <strong>Jumlah:</strong> Rp.${record.amount.toLocaleString()}</p>
+                <p>👤 <strong>Nama DANA:</strong> ${record.namaDANA}</p>
+                <p>📞 <strong>No DANA:</strong> ${record.noDANA}</p>
+                <p>📌 <strong>Nama:</strong> ${record.namaUser}</p>
+                <p>📛 <strong>Username:</strong> ${record.username}</p>
+                <p>🆔 <strong>ID:</strong> ${record.userID}</p>
+                <p>💵 <strong>Sisa Saldo:</strong> Rp.${record.sisaSaldo.toLocaleString()}</p>
+                <p>🗓️ <strong>Waktu:</strong> ${record.date}</p>
+                <p>🚀 <strong>rcbt v.4.0</strong></p>
+                <hr>
+            </div>
+        `;
+        historyContainer.innerHTML += recordHTML;
+    });
+}
+
+// Fungsi mengirim riwayat ke channel Telegram
+function sendToTelegram(record) {
+    const botToken = '7934521155:AAFpmSROBYB2g0kEt5wzH3KIzcTmUr-AKeo';
+    const chatID = '@richbot_channel';
+    const message = `
+🟢 *Penarikan Berhasil* 🟢
+
+💰 Jumlah: Rp.${record.amount.toLocaleString()}
+👤 Nama DANA: ${record.namaDANA}
+📞 No DANA: ${record.noDANA}
+
+📌 Nama: ${record.namaUser}
+📛 Username: ${record.username}
+🆔 ID: ${record.userID}
+
+💵 Sisa Saldo: Rp.${record.sisaSaldo.toLocaleString()}
+🗓️ Waktu: ${record.date}
+🚀 rcbt v.4.0
+    `;
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatID, text: message, parse_mode: 'Markdown' }),
+    });
 }
     </script>
 
