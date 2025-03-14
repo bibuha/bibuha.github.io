@@ -217,17 +217,16 @@
 // Jalankan Saat Halaman Dimuat
 window.addEventListener('DOMContentLoaded', async () => {
     console.log('Isi localStorage:', localStorage);
-
+    resetDaily();
     initTelegramWebApp();
     validateUser();   
-    showPopup();
-    resetDaily();
+    showPopup();    
     loadUserData();
     showBanner();
     resetDailyBooster();
     updateBalanceDisplay();
-    updateBoosterUI(getFromStorage('boostersAds'), getFromStorage('boosterAds'));
-    updateBoosterCount(getFromStorage('boosters') || 0);
+    updateBoosterUI(getFromStorage('boosterAds'), getFromStorage('boosterAds'));
+    updateBoosterCount(getFromStorage('booster') || 0);
 
     // Pastikan event listener tidak ditambahkan berulang
     const boosterButton = document.getElementById('rewardButton');
@@ -238,7 +237,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const balance = getFromStorage('balance') || 0;
     const adsWatched = getFromStorage('adsWatched') || 0;
-    document.getElementById('boosters').innerText = `${getFromStorage('boostersAds') || 0}/21`;
+    document.getElementById('booster').innerText = `${getFromStorage('boosterAds') || 0}/21`;
 });
     
         
@@ -249,20 +248,19 @@ function saveToStorage(key, value) {
 }
 
 function getFromStorage(key) {
-    const data = localStorage.getItem(`v4_${key}`);
-    console.log(`📤 Diambil: v4_${key} =`, data);
-    return data ? JSON.parse(data) : 0;  // Pastikan default 0 jika tidak ada data
+    const value = localStorage.getItem(`v4_${key}`);
+    console.log(`📤 Diambil: v4_${key} =`, value);
+    return value ? JSON.parse(value) : 0;  // Pastikan default 0 jika tidak ada data
 }
                 // Reset otomatis pukul 00:00 (dengan validasi waktu)
 function resetDaily() {
-    const lastReset = getFromStorage('lastReset');
+    const lastReset = getFromStorage('dailyReset');
     const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
 
     if (lastReset !== today) {
         saveToStorage('adsWatched', 0);  // Reset jumlah iklan Monetag
-        saveToStorage('boosters', 0);    // Reset booster Telegram
-        saveToStorage('boosterAds', 0);  // Reset batas booster
-        saveToStorage('lastReset', today); // Perbarui tanggal reset
+         saveToStorage('boosterAds', 0);  // Reset batas booster
+        saveToStorage('dailyReset', today); // Perbarui tanggal reset
         console.log('🔄 Data di-reset otomatis pada:', today);
     }
 }
@@ -314,12 +312,21 @@ function isTelegramWebApp() {
 
 // Bersihkan Data Validasi Lama (>24 jam)
 function cleanOldData() {
-    const registeredData = JSON.parse(localStorage.getItem('registeredData')) || [];
+    const registeredData = getFromStorage('registeredData') || [];
+    if (!Array.isArray(registeredData)) {
+        console.error('❌ Data tidak valid, mengatur ulang.');
+        saveToStorage('registeredData', []);
+        return;
+    }
+
     const now = Date.now();
     const expiredTime = 24 * 60 * 60 * 1000; // 24 jam
 
-    const cleanedData = registeredData.filter(entry => now - entry.timestamp < expiredTime);
-    localStorage.setItem('registeredData', JSON.stringify(cleanedData));
+    const cleanedData = registeredData.filter(entry => 
+        entry && typeof entry.timestamp === 'number' && now - entry.timestamp < expiredTime
+    );
+
+    saveToStorage('registeredData', cleanedData);
 }
 
 // Validasi Pengguna Telegram, IP, dan Device
@@ -328,13 +335,14 @@ async function validateUser() {
         // Bersihkan data lama
         cleanOldData();
 
-        // Pastikan Hanya Bisa Diakses dari Telegram
+        // Pastikan hanya diakses melalui Telegram
         if (!isTelegramWebApp()) {
             alert('🚫 Hanya bisa diakses melalui Telegram!');
             document.body.innerHTML = '<h2>🚫 Akses dibatasi, buka di Telegram!</h2>';
             return;
         }
 
+        // Validasi user Telegram
         const user = Telegram.WebApp.initDataUnsafe?.user;
         if (!user) {
             alert('🚫 Bot terdeteksi, akses diblokir!');
@@ -343,21 +351,21 @@ async function validateUser() {
         }
         const userId = user.id;
 
-        // Ambil IP Publik (Fallback ke 127.0.0.1 jika gagal)
+        // Ambil IP Publik (fallback ke 127.0.0.1 jika gagal)
         const ipResponse = await fetch('https://api.ipify.org?format=json').catch(() => null);
         const ip = ipResponse ? (await ipResponse.json()).ip : '127.0.0.1';
 
-        // Ambil Fingerprint Perangkat
+        // Ambil fingerprint perangkat
         const deviceFingerprint = getDeviceFingerprint();
         console.log(`📲 Fingerprint: ${deviceFingerprint}`);
 
-        // Ambil Data Validasi Sebelumnya
-        const registeredData = JSON.parse(localStorage.getItem('registeredData')) || [];
-        const sessionData = JSON.parse(localStorage.getItem('sessionData')) || null;
+        // Ambil data validasi sebelumnya
+        const registeredData = getFromStorage('v4_registeredData') || [];
+        const sessionData = getFromSession('sessionData') || null;
 
-        // Jika Ada di sessionStorage (Cegah Refresh atau Restart)
-        if (sessionData && sessionData.userId === userId && sessionData.device === deviceFingerprint) {            
-            console.log('✅ Sesi aktif, validasi lewat.');
+        // Cegah validasi ulang di sesi aktif
+        if (sessionData && sessionData.userId === userId && sessionData.device === deviceFingerprint) {
+            console.log('✅ Sesi aktif, validasi dilewati.');
             return;
         }
 
@@ -369,25 +377,25 @@ async function validateUser() {
         if (isUserIdUsed) {
             // Hapus perangkat lama jika akun digunakan di perangkat baru
             const updatedData = registeredData.filter(entry => entry.userId !== userId);
-            localStorage.setItem('registeredData', JSON.stringify(updatedData));
+            saveToStorage('v4_registeredData', updatedData);
             console.log('🔄 Perangkat lama dihapus, akses diperbarui.');
         } else if (isDeviceUsed) {
             alert('🚫 Akses ditolak: Perangkat ini sudah digunakan dengan akun lain.');
             document.body.innerHTML = '<h2>🚫 Perangkat Tidak Diizinkan</h2>';
             return;
-        } else if (devicesPerIP >= 1) {
-            alert('🚫 Akses dibatasi: Hanya 1 perangkat yang diizinkan di jaringan ini.');
+        } else if (devicesPerIP >= 1) { // Mengizinkan 2 perangkat di jaringan yang sama
+            alert('🚫 Akses dibatasi: Maksimal 2 perangkat di jaringan ini.');
             document.body.innerHTML = '<h2>🚫 Batas Perangkat Tercapai</h2>';
             return;
         }
 
-        // Simpan Data Baru (ID + IP + Device)
+        // Simpan data baru (ID + IP + Device)
         const newEntry = { userId, ip, device: deviceFingerprint, timestamp: Date.now() };
         registeredData.push(newEntry);
-        localStorage.setItem('registeredData', JSON.stringify(registeredData));
+        saveToStorage('v4_registeredData', registeredData);
 
-        // Simpan di sessionStorage (Agar Bertahan di Sesi Ini)
-        localStorage.setItem('sessionData', JSON.stringify({ userId, ip, device: deviceFingerprint }));
+        // Simpan di sessionStorage (Hanya bertahan di sesi ini)
+        saveToSession('sessionData', newEntry);
 
         alert('✅ Selamat datang di Rich Bot!');
     } catch (error) {
@@ -640,7 +648,7 @@ function resetDailyBooster() {
 
     if (lastReset !== today) {
         saveToStorage('boosterAds', 0);
-        saveToStorage('boosters', 0);
+        saveToStorage('booster', 0);
         saveToStorage('lastReset', today);
         updateBoosterUI(0, 0);
     }
