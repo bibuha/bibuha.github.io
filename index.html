@@ -187,7 +187,7 @@
 <p>Booster: <span id="boosterCount">0</span> | Iklan: <span id="boosterAds">0/21</span></p>
 
     <div class="button-container">
-        <button class="ad-button" id="rewardButton" onclick="showTelegramAd()">🚀booster🚀</button>
+        <button class="ad-button" id="rewardButton">🚀booster🚀</button>
     </div>
 
 
@@ -225,7 +225,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     loadUserData();
     showBanner();
     resetDailyBooster();
-    updateBoosterUI(getFromStorage('boosters'), getFromStorage('boosterAds'));
+    updateBalanceDisplay();
+    updateBoosterUI(getFromStorage('boostersAds'), getFromStorage('boosterAds'));
     updateBoosterCount(getFromStorage('boosters') || 0);
 
     // Pastikan event listener tidak ditambahkan berulang
@@ -237,7 +238,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const balance = getFromStorage('balance') || 0;
     const adsWatched = getFromStorage('adsWatched') || 0;
-    document.getElementById('boosters').innerText = `${getFromStorage('boosters') || 0}/21`;
+    document.getElementById('boosters').innerText = `${getFromStorage('boostersAds') || 0}/21`;
 });
     
         
@@ -499,9 +500,10 @@ function mulaiTimerIklan(durasi) {
 function addReward(amount) {
     let balance = getFromStorage('balance') || 0;
     balance += amount;
+
     saveToStorage('balance', balance);
-    document.getElementById('balance').innerText = balance;
-    updateBalanceDisplay();
+    document.getElementById('balance').innerText = `Rp.${balance}`;
+    console.log(`💰 Saldo bertambah: Rp.${amount}, Total: Rp.${balance}`);
 }
 
 // Fungsi Memperbarui Tampilan Saldo & Tontonan
@@ -593,16 +595,11 @@ function showTelegramAd() {
     } else {
         showNotification("❌ Iklan tidak tersedia saat ini.");
     }
-     function showTelegramAd() {
-    console.log('Iklan dipanggil sekali');
-    showAd();
 }
-}
-       
 
 // Fungsi Nonaktifkan Tombol Booster dengan Countdown
 function disableBoosterButtonWithCountdown() {
-    const button = document.getElementById('btnBooster');
+    const button = document.getElementById('rewardButton'); // Perbaikan id tombol
     if (!button) return;
 
     let countdown = 60; // Waktu hitung mundur dalam detik
@@ -633,10 +630,8 @@ function getFromStorage(key) {
 // Fungsi Perbarui Tampilan Booster di UI
 function updateBoosterUI(boosters, boosterAds) {
     document.getElementById('boosterCount').textContent = boosters;
-    document.getElementById('boosterAdsCount').textContent = boosterAds;
+    document.getElementById('boosterAds').textContent = `${boosterAds}/21`;
 }
-
-
 
 // Reset Otomatis setiap 00:00
 function resetDailyBooster() {
@@ -650,6 +645,7 @@ function resetDailyBooster() {
         updateBoosterUI(0, 0);
     }
 }
+
 
 // Menampilkan Notifikasi Dinamis
 function showNotification(message) {
