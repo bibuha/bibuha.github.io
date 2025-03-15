@@ -64,7 +64,7 @@
         <p>🆔 ID Telegram: <span id="userId">-</span></p>
     </div>
 
-    <p>💰 Saldo Anda: <span id="balance">0</span> Rp</p>
+    <p>💰 Saldo Anda: Rp <span id="balance">0</span></p>
     <p>🎯 Jumlah Tontonan Hari Ini: <span id="adsWatched">0</span> / 20</p>
     
     <button id="watchAdButton" onclick="tontonIklan()">🎥 Tonton Iklan Rp.10 🎥</button>
@@ -73,13 +73,23 @@
 
     <script>
         const PREFIX = "v4_";
-        let adsWatched = getFromStorage(PREFIX + "adsWatched") || 0;
-        let lastReset = getFromStorage(PREFIX + "lastReset") || null;
         let dailyLimit = 20;
         let rewardPerAd = 10;
-        let countdownTime = 60; // Timer mundur 1 menit (60 detik)
+        let countdownTime = 60; // 60 detik hitung mundur
         let countdownInterval;
 
+        function saveToStorage(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+            } catch (error) {
+                console.error("Gagal menyimpan ke localStorage:", error);
+            }
+        }
+
+        function getFromStorage(key) {
+            let data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : null;
+        }
         function initWebApp() {
             if (window.Telegram.WebApp) {
                 let tg = window.Telegram.WebApp;
@@ -97,17 +107,25 @@
         }
 
         function resetDailyLimit() {
-            let now = new Date();
-            let currentDate = now.toDateString();
-            if (lastReset !== currentDate) {
-                saveToStorage(PREFIX + "adsWatched", 0);
-                saveToStorage(PREFIX + "lastReset", currentDate);
-                adsWatched = 0;
-            }
-        }
+    let now = new Date();
+    let currentDate = now.toDateString();
+    let lastReset = getFromStorage(PREFIX + "lastReset");
+
+    if (lastReset !== currentDate) {
+        saveToStorage(PREFIX + "adsWatched", 0);
+        let saldo = getFromStorage(PREFIX + "balance") || 0;
+        saveToStorage(PREFIX + "balance", saldo); // Saldo tidak di-reset
+        saveToStorage(PREFIX + "lastReset", currentDate);
+
+        document.getElementById("adsWatched").innerText = 0;
+        document.getElementById("watchAdButton").disabled = false;
+        document.getElementById("watchAdButton").innerText = "🎥 Tonton Iklan Rp.10 🎥";
+    }
+}
 
         function tontonIklan() {
     resetDailyLimit();
+            adsWatched = getFromStorage(PREFIX + "adsWatched") || 0;
 
     if (adsWatched >= dailyLimit) {
         showNotification("🚫 Anda sudah mencapai batas tontonan hari ini.");
@@ -123,6 +141,11 @@
     if (!adController) {
         showNotification("❌ Iklan tidak tersedia.");
         return;
+    }
+            
+      if (typeof window.TelegramAdsController === "undefined") {
+    showNotification("❌ Iklan tidak tersedia.");
+    return;
     }
 
     let button = document.getElementById("watchAdButton");
@@ -203,18 +226,25 @@
         document.addEventListener("DOMContentLoaded", () => {
             initWebApp();
             resetDailyLimit();
+              // Pastikan Telegram Ads tersedia sebelum digunakan
+    setTimeout(() => {
+        if (typeof window.TelegramAdsController !== "undefined") {
+            window.TelegramAdsController.initialize({
+                pubId: "963391",
+                appId: "1707"
+            });
+        } else {
+            console.error("TelegramAdsController tidak tersedia.");
+        }
+    }, 500);
             document.getElementById("balance").innerText = getFromStorage(PREFIX + "balance") || 0;
-            document.getElementById("adsWatched").innerText = getFromStorage(PREFIX + "adsWatched") || 0;
-            if (adsWatched >= dailyLimit) {
-                document.getElementById("watchAdButton").disabled = true;
-            }
+            let adsWatched = getFromStorage(PREFIX + "adsWatched") || 0;
+document.getElementById("adsWatched").innerText = adsWatched;
+if (adsWatched >= dailyLimit) {
+    document.getElementById("watchAdButton").disabled = true;
+}
         });
-     // Inisialisasi Telegram Ads
-window.TelegramAdsController = new TelegramAdsController();
-window.TelegramAdsController.initialize({
-    pubId: "963391",
-    appId: "1707"
-});
+   
     </script>
 
 </body>
