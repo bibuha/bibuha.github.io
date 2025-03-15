@@ -75,6 +75,7 @@
     document.addEventListener("DOMContentLoaded", () => {
             initWebApp();
             resetDailyLimit();
+        TelegramAdsController();
               // Pastikan Telegram Ads tersedia sebelum digunakan
     setTimeout(() => {
         if (typeof window.TelegramAdsController !== "undefined") {
@@ -93,6 +94,13 @@ if (adsWatched >= dailyLimit) {
     document.getElementById("watchAdButton").disabled = true;
 }
         });
+    
+    // Inisialisasi Telegram Ads
+window.TelegramAdsController = new TelegramAdsController();
+window.TelegramAdsController.initialize({
+    pubId: "963391",
+    appId: "1707"
+});
     
         const PREFIX = "v4_";
         let dailyLimit = 20;
