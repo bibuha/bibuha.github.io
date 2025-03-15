@@ -72,6 +72,28 @@
     <div id="notification"></div>
 
     <script>
+    document.addEventListener("DOMContentLoaded", () => {
+            initWebApp();
+            resetDailyLimit();
+              // Pastikan Telegram Ads tersedia sebelum digunakan
+    setTimeout(() => {
+        if (typeof window.TelegramAdsController !== "undefined") {
+            window.TelegramAdsController.initialize({
+                pubId: "963391",
+                appId: "1707"
+            });
+        } else {
+            console.error("TelegramAdsController tidak tersedia.");
+        }
+    }, 500);
+            document.getElementById("balance").innerText = getFromStorage(PREFIX + "balance") || 0;
+            let adsWatched = getFromStorage(PREFIX + "adsWatched") || 0;
+document.getElementById("adsWatched").innerText = adsWatched;
+if (adsWatched >= dailyLimit) {
+    document.getElementById("watchAdButton").disabled = true;
+}
+        });
+    
         const PREFIX = "v4_";
         let dailyLimit = 20;
         let rewardPerAd = 10;
@@ -223,27 +245,7 @@
             return data ? JSON.parse(data) : null;
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            initWebApp();
-            resetDailyLimit();
-              // Pastikan Telegram Ads tersedia sebelum digunakan
-    setTimeout(() => {
-        if (typeof window.TelegramAdsController !== "undefined") {
-            window.TelegramAdsController.initialize({
-                pubId: "963391",
-                appId: "1707"
-            });
-        } else {
-            console.error("TelegramAdsController tidak tersedia.");
-        }
-    }, 500);
-            document.getElementById("balance").innerText = getFromStorage(PREFIX + "balance") || 0;
-            let adsWatched = getFromStorage(PREFIX + "adsWatched") || 0;
-document.getElementById("adsWatched").innerText = adsWatched;
-if (adsWatched >= dailyLimit) {
-    document.getElementById("watchAdButton").disabled = true;
-}
-        });
+        
    
     </script>
 
