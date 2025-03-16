@@ -3,100 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RICHBOT v2.0 - Debugging Iklan</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://js.onclckmn.com/static/onclicka.js"></script> <!-- OnClicka -->
+    <title>RICHBOT v2.0 - Iklan & Telegram</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script> <!-- WebApp Telegram -->
+    <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script> <!-- TMA Ads -->
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; padding: 20px; }
-        .container { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); max-width: 400px; margin: auto; }
-        .ad-container { width: 300px; height: 250px; margin: 20px auto; border: 1px solid #ccc; background-color: #eee; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #666; }
-        button { background-color: #ff9800; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        button:disabled { background-color: #ccc; }
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; background-color: #f4f4f4; }
+        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        h2 { color: #333; }
+        button { padding: 12px 20px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px; margin-top: 10px; }
+        #playAdBtn { background: #007bff; color: white; }
+        #playAdBtn:disabled { background: #ccc; cursor: not-allowed; }
+        .debug { margin-top: 20px; padding: 10px; border: 1px solid #ccc; background: #fffbe6; text-align: left; display: inline-block; width: 100%; border-radius: 5px; }
+        .error { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>RICHBOT v2.0 - Debugging</h1>
-        <p id="telegramUser">Mengambil data pengguna...</p>
-        <p class="saldo">Saldo Anda: <span id="saldoUser">0</span> Rp</p>
-        
-        <!-- Kontainer Iklan -->
-        <div id="ad-container" class="ad-container">
-            Iklan akan muncul di sini
+        <h2>RICHBOT v2.0</h2>
+        <p><strong>Nama:</strong> <span id="nama">...</span></p>
+        <p><strong>Username:</strong> <span id="username">...</span></p>
+        <p><strong>ID Telegram:</strong> <span id="telegramID">...</span></p>
+        <p><strong>Saldo Anda:</strong> <span id="saldo">0</span> Rp</p>
+
+        <button id="playAdBtn" disabled>Muat Iklan...</button>
+
+        <div class="debug">
+            <strong>Log Debugging:</strong>
+            <p id="log">Menunggu iklan dimuat...</p>
         </div>
-
-        <button id="btnTontonIklan">Tonton Iklan</button>
-
-        <!-- Log Debugging -->
-        <p><strong>Debug Log:</strong></p>
-        <textarea id="debugLog" rows="6" style="width: 100%;"></textarea>
     </div>
 
     <script>
-        function logDebug(message) {
-            console.log(message);
-            document.getElementById('debugLog').value += message + "\n";
+        let adReady = false;  // Status apakah iklan siap
+        let spotID = "Rewarded_video— TMA Rewarded video #1"; // Sesuaikan dengan Spot ID Anda
+        let saldo = 0;  // Simpan saldo pengguna (bisa diambil dari localStorage atau database)
+
+        function updateLog(message, isError = false) {
+            let logElem = document.getElementById("log");
+            logElem.innerHTML = message;
+            logElem.className = isError ? "error" : "";
         }
 
-        let saldo = localStorage.getItem('saldo') ? parseInt(localStorage.getItem('saldo')) : 0;
-        document.getElementById('saldoUser').innerText = saldo;
-
-        // Inisialisasi WebApp Telegram
+        // **1. Inisialisasi WebApp Telegram & Ambil Data Pengguna**
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Memperluas WebApp
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            let user = tg.initDataUnsafe.user;
-            document.getElementById('telegramUser').innerText = `👤 ${user.first_name} (@${user.username || 'Tidak ada username'})`;
-            logDebug("✅ Data pengguna Telegram berhasil diambil.");
+        tg.expand();  // Mode layar penuh
+        let user = tg.initDataUnsafe?.user;
+
+        if (user) {
+            document.getElementById("nama").textContent = user.first_name || "Tidak diketahui";
+            document.getElementById("username").textContent = "@" + (user.username || "Tidak ada");
+            document.getElementById("telegramID").textContent = user.id;
         } else {
-            document.getElementById('telegramUser').innerText = "⚠️ Gagal mengambil data pengguna!";
-            logDebug("⚠️ Gagal mengambil data pengguna Telegram.");
+            updateLog("❌ Gagal mengambil data Telegram.", true);
         }
 
-        // Inisialisasi iklan OnClicka
-        const adSpotID = 306361;
-        logDebug("🚀 Memulai inisialisasi iklan dengan Spot ID: " + adSpotID);
-
-        window.initCdTma?.({ id: adSpotID })
+        // **2. Inisialisasi Iklan TMA**
+        window.initCdTma?.({ id: 6063610 })
             .then(show => {
-                window.showAd = show;
-                document.getElementById('ad-container').innerText = "✅ Iklan siap ditampilkan";
-                logDebug("✅ Iklan berhasil diinisialisasi!");
+                window.show = show;
+                document.getElementById("playAdBtn").innerText = "Tonton Iklan";
+                document.getElementById("playAdBtn").disabled = false;
+                adReady = true;
+                updateLog("✅ Iklan siap ditampilkan.");
             })
             .catch(e => {
-                console.error('❌ Gagal memuat iklan:', e);
-                document.getElementById('ad-container').innerText = "⚠️ Gagal memuat iklan";
-                logDebug("❌ Gagal memuat iklan: " + e.message);
+                console.error("Gagal memuat iklan:", e);
+                updateLog("❌ Gagal memuat iklan: " + e.message, true);
             });
 
-        // Fungsi menambah saldo
-        function tambahSaldo(jumlah) {
-            saldo += jumlah;
-            localStorage.setItem('saldo', saldo);
-            document.getElementById('saldoUser').innerText = saldo;
-            logDebug("💰 Saldo bertambah: " + jumlah + " Rp (Total: " + saldo + " Rp)");
-        }
+        // **3. Event Klik untuk Memutar Iklan**
+        document.getElementById("playAdBtn").addEventListener("click", () => {
+            if (!adReady) return;
 
-        // Event listener untuk tombol iklan
-        document.getElementById('btnTontonIklan').addEventListener('click', function () {
-            if (window.showAd) {
-                logDebug("▶️ Memulai pemutaran iklan...");
-                window.showAd()
-                    .then(() => {
-                        logDebug("✅ Iklan berhasil ditampilkan.");
-                        tambahSaldo(14); // Tambah saldo setelah iklan selesai
-                    })
-                    .catch(e => {
-                        console.error('❌ Gagal menampilkan iklan', e);
-                        logDebug("❌ Gagal menampilkan iklan: " + e.message);
-                    });
-            } else {
-                logDebug("⚠️ Iklan belum siap, coba lagi nanti.");
-                console.error('⚠️ Iklan belum siap, coba lagi nanti.');
-            }
+            document.getElementById("playAdBtn").disabled = true; // Cegah spam klik
+            updateLog("⏳ Memutar iklan...");
+
+            window.show?.()
+                .then(() => {
+                    console.log("✅ Iklan berhasil diputar!");
+                    saldo += 14;  // Tambah saldo setelah iklan berhasil
+                    document.getElementById("saldo").textContent = saldo;
+                    updateLog("✅ Iklan selesai! Saldo bertambah.");
+                })
+                .catch(e => {
+                    console.error("Error saat menampilkan iklan:", e);
+                    updateLog("❌ Gagal menampilkan iklan: " + e.message, true);
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        document.getElementById("playAdBtn").disabled = false; // Aktifkan lagi tombol setelah delay
+                    }, 2000);
+                });
         });
-
     </script>
 
 </body>
