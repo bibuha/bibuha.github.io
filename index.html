@@ -6,6 +6,7 @@
     <title>RICHBOT v2.0 - Iklan & Telegram</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script> <!-- WebApp Telegram -->
     <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script> <!-- TMA Ads -->
+    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin: 20px; background-color: #f4f4f4; }
         .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
@@ -96,6 +97,11 @@
                     }, 2000);
                 });
         });
+    window.TelegramAdsController = new TelegramAdsController();
+            window.TelegramAdsController.initialize({
+              pubId: "963391",
+              appId: "1707",
+            });
     </script>
 
 </body>
