@@ -8,7 +8,7 @@
     <!-- Telegram WebApp & RichAds SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-    <script src='//whephiwums.com/sdk.js' data-zone='9075309' data-sdk='show_9075309'></script>
+
   <style>
   body {
             font-family: 'Arial', sans-serif;
@@ -199,6 +199,13 @@
         <h3>📜 Riwayat Penarikan</h3>
         <div id="historyList">Belum ada riwayat.</div>
     <!-- Notifikasi -->
+              
+              <button id="adButton">Tonton Iklan</button>
+
+<script>
+    document.getElementById('adButton').addEventListener('click', tontonIklan);
+</script>
+</body>
       <script> // Fungsi Penyimpanan dengan Prefix v4_
 function saveToStorage(key, value) {
     localStorage.setItem(`v4_${key}`, JSON.stringify(value));
@@ -215,23 +222,20 @@ let telegramUser = {};
 
 function initTelegramWebApp() {
     if (window.Telegram && Telegram.WebApp) {
-        try {
-            Telegram.WebApp.ready();
-            const user = Telegram.WebApp.initDataUnsafe?.user;
+        Telegram.WebApp.ready();
+        const user = Telegram.WebApp.initDataUnsafe?.user;
 
-            if (user) {
-                telegramUser = user;
-                saveToStorage('user', user); // Simpan dengan prefix v4_
-                displayUserInfo(user);
-                console.log("✅ Data Pengguna:", user);
-            } else {
-                showNotification("❌ Gagal memuat data Telegram.");
-            }
-        } catch (error) {
-            console.error("❌ Error mengambil data Telegram:", error);
-            showNotification("❌ Terjadi kesalahan saat memuat data.");
+        if (user) {
+            telegramUser = user;
+            saveToStorage('user', user);
+            displayUserInfo(user);
+            console.log("✅ Data Pengguna:", user);
+        } else {
+            console.warn("⚠️ Data Telegram tidak ditemukan.");
+            showNotification("⚠️ Gagal memuat data Telegram.");
         }
     } else {
+        console.error("❌ Telegram WebApp tidak tersedia.");
         showNotification("❌ Telegram WebApp tidak tersedia.");
     }
 }
@@ -247,11 +251,17 @@ function displayUserInfo(user) {
 }
 
       // Inisialisasi Telegram Ads
-window.TelegramAdsController = new TelegramAdsController();
-window.TelegramAdsController.initialize({
-    pubId: "963391",
-    appId: "1707"
-});
+function initTelegramAds() {
+    if (typeof TelegramAdsController !== "undefined") {
+        window.TelegramAdsController = new TelegramAdsController();
+        window.TelegramAdsController.initialize({
+            pubId: "963391",
+            appId: "1707"
+        });
+    } else {
+        console.error("❌ TelegramAdsController tidak tersedia.");
+    }
+}
         // Menampilkan Embedded Banner
 function showBanner() {
     const bannerContainer = document.getElementById('bannerAd');
@@ -259,10 +269,11 @@ function showBanner() {
     if (window.TelegramAdsController) {
         window.TelegramAdsController.showBanner(bannerContainer, {
             onLoad: function() {
-                bannerContainer.innerHTML = ''; // Bersihkan teks loading
+                bannerContainer.innerHTML = ''; // Hapus teks "Iklan sedang dimuat..."
             },
             onError: function() {
                 bannerContainer.innerHTML = '❌ Gagal memuat banner.';
+                console.error("❌ Gagal memuat banner.");
             }
         });
     } else {
