@@ -156,7 +156,7 @@
 }
   </style>
 <body>
-  <h1>✨ Rich Bot v4.0. ✨</h1>
+  <h1>✨ Rich Bot v4.0 ✨</h1>
     
     <!-- Banner Ad (Embedded) -->
     <div id="bannerAd">Iklan sedang dimuat...</div>
@@ -177,7 +177,7 @@
 
     <!-- Tombol Iklan -->
     <div class="button-container">
-        <button class="ad-button" id="adButton" onclick="showTelegramAd()">🎥Tonton Iklan Rp.10🎥</button>
+        <button class="ad-button" id="adButton" onclick="tontonIklan()">🎥Tonton Iklan Rp.10🎥</button>
     </div>
   
     <!-- tombol penarikan -->
@@ -202,7 +202,7 @@
               
             
 <script>
-    document.getElementById('adButton').addEventListener('click', showTelegramAd);
+    document.getElementById('adButton').addEventListener('click', tontonIklan);
 </script>
 </body>
       <script> // Fungsi Penyimpanan dengan Prefix v4_
@@ -348,7 +348,7 @@ function disableAdButtonWithCountdown() {
     const button = document.getElementById('adButton'); // Perbaikan id tombol
     if (!button) return;
 
-    let countdown = 21; // Waktu hitung mundur dalam detik
+    let countdown = 60; // Waktu hitung mundur dalam detik
     button.disabled = true;
 
     const interval = setInterval(() => {
@@ -535,7 +535,7 @@ function updateWithdrawHistoryUI() {
 
 // Fungsi mengirim riwayat ke channel Telegram
 function sendToTelegram(record) {
-    const botToken = '-';
+    const botToken = '7934521155:AAFpmSROBYB2g0kEt5wzH3KIzcTmUr-AKeo';
     const chatID = '@richbot_channel';
     const message = `
 🟢 *Penarikan Berhasil* 🟢
