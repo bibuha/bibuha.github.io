@@ -177,7 +177,7 @@
 
     <!-- Tombol Iklan -->
     <div class="button-container">
-        <button class="ad-button" id="adButton" onclick="tontonIklan()">🎥Tonton Iklan Rp.10🎥</button>
+       <button class="ad-button" id="adButton">🎥Tonton Iklan Rp.10🎥</button>  
     </div>
   
     <!-- tombol penarikan -->
@@ -201,28 +201,13 @@
     <!-- Notifikasi -->
               
             
-<script>
-    document.getElementById('adButton').addEventListener('click', tontonIklan);
-</script>
 </body>
       <script> 
           
-          window.onload = function () {
-    initTelegramWebApp();
-
-    // Tampilkan popup selamat datang sekali per hari
-    const lastShown = localStorage.getItem("v4_welcomeShownDate");
-    const today = new Date().toLocaleDateString();
-    if (lastShown !== today) {
-        document.getElementById("welcomePopup").style.display = "block";
-        localStorage.setItem("v4_welcomeShownDate", today);
-    }
-
-    // Load saldo dan jumlah tonton
-    document.getElementById("balance").innerText = getFromStorage("saldo");
-    document.getElementById("views").innerText = getFromStorage("tontonan");
-};
           
+          document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('adButton').addEventListener('click', showTelegramAd);
+});
           
           // Fungsi Penyimpanan dengan Prefix v4_
 function saveToStorage(key, value) {
