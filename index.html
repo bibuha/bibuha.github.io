@@ -202,10 +202,18 @@
               
             
 </body>
-      <script> 
-          
-          
-          document.addEventListener('DOMContentLoaded', function () {
+          <script>
+      document.addEventListener('DOMContentLoaded', () => {
+    initTelegramWebApp();
+    initTelegramAds();
+    showBanner();
+
+    const adsWatchedToday = getFromStorage('v4_adsWatchedToday') || 0;
+    updateAdsUI(adsWatchedToday);
+
+    const balance = getFromStorage('v4_balance') || 0;
+    document.getElementById('balance').textContent = `Saldo: ${balance} rupiah`;
+
     document.getElementById('adButton').addEventListener('click', showTelegramAd);
 });
           
