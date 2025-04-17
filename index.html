@@ -156,7 +156,7 @@
 }
   </style>
 <body>
-  <h1>✨ Rich Bot v4.0 ✨</h1>
+  <h1>✨ Rich Bot v4.0. ✨</h1>
     
     <!-- Banner Ad (Embedded) -->
     <div id="bannerAd">Iklan sedang dimuat...</div>
@@ -177,7 +177,7 @@
 
     <!-- Tombol Iklan -->
     <div class="button-container">
-       <button class="ad-button" id="adButton">🎥Tonton Iklan Rp.10🎥</button>  
+        <button class="ad-button" id="adButton" onclick="showTelegramAd()">🎥Tonton Iklan Rp.10🎥</button>
     </div>
   
     <!-- tombol penarikan -->
@@ -201,48 +201,22 @@
     <!-- Notifikasi -->
               
             
-</body>
-          <script>
-      document.addEventListener('DOMContentLoaded', () => {
-    // Cek apakah data pengguna sudah ada di localStorage
-    const savedUser = getFromStorage('user');
-    if (!savedUser) {
-        initTelegramWebApp();
-    } else {
-        displayUserInfo(savedUser);
-        console.log("✅ Data Pengguna dari localStorage:", savedUser);
-    }
-
-    // Inisialisasi iklan dan banner
-    initTelegramAds();
-    showBanner();
-
-    // Cek dan tampilkan jumlah iklan yang sudah ditonton hari ini
-    const adsWatchedToday = getFromStorage('v4_adsWatchedToday') || 0;
-    updateAdsUI(adsWatchedToday);
-
-    // Cek dan tampilkan saldo pengguna
-    const balance = getFromStorage('v4_balance') || 0;
-    document.getElementById('balance').textContent = `Saldo: ${balance} rupiah`;
-
-    // Event listener untuk tombol iklan
+<script>
     document.getElementById('adButton').addEventListener('click', showTelegramAd);
-});
-
-// Fungsi untuk menyimpan data ke localStorage dengan prefix v4_
+</script>
+</body>
+      <script> // Fungsi Penyimpanan dengan Prefix v4_
 function saveToStorage(key, value) {
     localStorage.setItem(`v4_${key}`, JSON.stringify(value));
     console.log(`✅ Disimpan: v4_${key} =`, value);
 }
 
-// Fungsi untuk mengambil data dari localStorage dengan prefix v4_
 function getFromStorage(key) {
     const value = localStorage.getItem(`v4_${key}`);
     console.log(`📤 Diambil: v4_${key} =`, value);
     return value ? JSON.parse(value) : 0;  // Pastikan default 0 jika tidak ada data
 }
-
-// Inisialisasi Telegram WebApp
+      // Inisialisasi Telegram WebApp
 let telegramUser = {};
 
 function initTelegramWebApp() {
@@ -314,66 +288,56 @@ let rewardPerAd = 10;    // Reward per iklan
 function showTelegramAd() {
     if (isAdPlaying) {
         showNotification("⏳ Iklan sedang berjalan...");
-        return;
+        return; // Mencegah pemanggilan ulang saat iklan aktif
     }
 
+    // Validasi koneksi internet
     if (!navigator.onLine) {
         showNotification("⚠️ Tidak ada koneksi internet!");
         return;
     }
 
-    let adsWatchedToday = getFromStorage('v4_adsWatchedToday') || 0;
+    // Ambil data dari localStorage dengan prefix v4_
+    let adsWatchedToday = getFromStorage('v4_adsWatchedToday') || 0; // Jumlah iklan yang ditonton hari ini
 
+    // Validasi batas maksimal iklan (25 kali per hari)
     if (adsWatchedToday >= dailyLimit) {
         showNotification("❌ Limit iklan hari ini tercapai!");
         return;
     }
 
+    // Validasi ketersediaan TelegramAdsController
     if (window.TelegramAdsController && typeof window.TelegramAdsController.showAd === 'function') {
-        isAdPlaying = true;
+        isAdPlaying = true; // Set status iklan sedang berjalan
 
-        const button = document.getElementById('adButton');
-        if (button) {
-            button.disabled = true;
-        }
-
-        // Mulai countdown 21 detik
-        let countdown = 21;
-        const interval = setInterval(() => {
-            if (button) {
-                button.textContent = `⏳ Tunggu ${countdown}s`;
-            }
-            countdown--;
-
-            if (countdown < 0) {
-                clearInterval(interval);
-
-                // Tambahkan reward
-                adsWatchedToday++;
-                saveToStorage('v4_adsWatchedToday', adsWatchedToday);
-                updateAdsUI(adsWatchedToday);
-                giveReward(rewardPerAd);
-                showNotification(`✅ Anda mendapatkan ${rewardPerAd} rupiah!`);
-
-                // Reset tombol
-                if (button) {
-                    button.disabled = false;
-                    button.textContent = "🚀 Tonton Iklan Booster";
-                }
-
-                isAdPlaying = false;
-            }
-        }, 1000);
-
-        // Tampilkan iklan (tidak perlu tunggu hasil)
         try {
-            window.TelegramAdsController.showAd().catch(() => {
-                showNotification("⚠️ Iklan gagal dimuat.");
-            });
-        } catch (err) {
-            showNotification("❌ Gagal memuat iklan.");
-        }
+            // Tampilkan iklan Telegram
+            window.TelegramAdsController.showAd()
+                .then(() => {
+                    // Jika iklan berhasil ditampilkan, update data
+                    adsWatchedToday++;
+                    saveToStorage('v4_adsWatchedToday', adsWatchedToday);
 
+                    // Perbarui UI setelah iklan
+                    updateAdsUI(adsWatchedToday);
+
+                    // Berikan reward per iklan
+                    giveReward(rewardPerAd);
+                    showNotification(`✅ Anda mendapatkan ${rewardPerAd} rupiah!`);
+
+                    // Nonaktifkan tombol selama 60 detik (dengan countdown)
+                    disableAdButtonWithCountdown();
+                })
+                .catch(() => {
+                    showNotification("⚠️ Iklan gagal dimuat. Coba lagi nanti.");
+                })
+                .finally(() => {
+                    isAdPlaying = false; // Reset status setelah selesai
+                });
+        } catch (error) {
+            isAdPlaying = false; // Pastikan reset jika terjadi error
+            showNotification("❌ Terjadi kesalahan saat memuat iklan.");
+        }
     } else {
         showNotification("❌ Iklan tidak tersedia saat ini.");
     }
@@ -571,7 +535,7 @@ function updateWithdrawHistoryUI() {
 
 // Fungsi mengirim riwayat ke channel Telegram
 function sendToTelegram(record) {
-    const botToken = '
+    const botToken = '-';
     const chatID = '@richbot_channel';
     const message = `
 🟢 *Penarikan Berhasil* 🟢
