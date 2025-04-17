@@ -204,31 +204,45 @@
 </body>
           <script>
       document.addEventListener('DOMContentLoaded', () => {
-    initTelegramWebApp();
+    // Cek apakah data pengguna sudah ada di localStorage
+    const savedUser = getFromStorage('user');
+    if (!savedUser) {
+        initTelegramWebApp();
+    } else {
+        displayUserInfo(savedUser);
+        console.log("✅ Data Pengguna dari localStorage:", savedUser);
+    }
+
+    // Inisialisasi iklan dan banner
     initTelegramAds();
     showBanner();
 
+    // Cek dan tampilkan jumlah iklan yang sudah ditonton hari ini
     const adsWatchedToday = getFromStorage('v4_adsWatchedToday') || 0;
     updateAdsUI(adsWatchedToday);
 
+    // Cek dan tampilkan saldo pengguna
     const balance = getFromStorage('v4_balance') || 0;
     document.getElementById('balance').textContent = `Saldo: ${balance} rupiah`;
 
+    // Event listener untuk tombol iklan
     document.getElementById('adButton').addEventListener('click', showTelegramAd);
 });
-          
-          // Fungsi Penyimpanan dengan Prefix v4_
+
+// Fungsi untuk menyimpan data ke localStorage dengan prefix v4_
 function saveToStorage(key, value) {
     localStorage.setItem(`v4_${key}`, JSON.stringify(value));
     console.log(`✅ Disimpan: v4_${key} =`, value);
 }
 
+// Fungsi untuk mengambil data dari localStorage dengan prefix v4_
 function getFromStorage(key) {
     const value = localStorage.getItem(`v4_${key}`);
     console.log(`📤 Diambil: v4_${key} =`, value);
     return value ? JSON.parse(value) : 0;  // Pastikan default 0 jika tidak ada data
 }
-      // Inisialisasi Telegram WebApp
+
+// Inisialisasi Telegram WebApp
 let telegramUser = {};
 
 function initTelegramWebApp() {
