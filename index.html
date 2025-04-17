@@ -156,7 +156,7 @@
 }
   </style>
 <body>
-  <h1>✨ Rich Bot v4.0 ✨</h1>
+  <h1>✨ Rich Bot v4.0. ✨</h1>
     
     <!-- Banner Ad (Embedded) -->
     <div id="bannerAd">Iklan sedang dimuat...</div>
@@ -241,12 +241,12 @@ function initTelegramWebApp() {
 
 // Tampilkan Info Pengguna Telegram
 function displayUserInfo(user) {
-    const userInfo = document.getElementById('userInfo');
-    userInfo.innerHTML = `
-        <p><strong>👤 Nama:</strong> ${user.first_name || 'Tidak ada'}</p>
-        <p><strong>📛 Username:</strong> ${user.username || 'Tidak ada'}</p>
-        <p><strong>🆔 ID:</strong> ${user.id || 'Tidak ada'}</p>
+    const html = `
+        <p><strong>👤 Nama:</strong> ${user.first_name || '-'} ${user.last_name || ''}</p>
+        <p><strong>🔖 Username:</strong> @${user.username || '-'}</p>
+        <p><strong>🆔 ID:</strong> ${user.id}</p>
     `;
+    document.getElementById('userInfo').innerHTML = html;
 }
 
       // Inisialisasi Telegram Ads
