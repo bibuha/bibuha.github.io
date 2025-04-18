@@ -7,8 +7,15 @@
 
     <!-- Telegram WebApp & RichAds SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-
+ 
+          <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
+          <script>
+            window.TelegramAdsController = new TelegramAdsController();
+            window.TelegramAdsController.initialize({
+              pubId: "963391",
+              appId: "1707",
+            });
+          </script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -212,11 +219,7 @@
     }
 
     // Pastikan Telegram Ads SDK telah dimuat
-    window.TelegramAdsController = new TelegramAdsController();
-    window.TelegramAdsController.initialize({
-        pubId: "963391",
-        appId: "1707",
-    });
+    
 
     
 
@@ -239,31 +242,42 @@ function tontonIklan() {
     adButton.innerText = `⏳ Tunggu ${waktu} detik...`;
 
     // Tampilkan iklan
-    if (window.TelegramAdsController) {
-        window.TelegramAdsController.showAd({ adType: 'rewarded' });
-    }
-
-    // Timer countdown 21 detik
-    let timer = setInterval(() => {
-        waktu--;
+   // Tampilkan iklan dan tunggu selesai
+if (window.TelegramAdsController) {
+    window.TelegramAdsController.showAd({ adType: 'rewarded' }).then(() => {
+        // Timer countdown 21 detik setelah iklan SELESAI
+        let waktu = 21;
         adButton.innerText = `⏳ Tunggu ${waktu} detik...`;
-        if (waktu <= 0) {
-            clearInterval(timer);
 
-            // Tambah saldo
-            let saldo = parseInt(balanceElement.innerText);
-            saldo += 10;
-            balanceElement.innerText = saldo;
+        let timer = setInterval(() => {
+            waktu--;
+            adButton.innerText = `⏳ Tunggu ${waktu} detik...`;
+            if (waktu <= 0) {
+                clearInterval(timer);
 
-            // Tambah jumlah tontonan
-            tontonJumlah += 1;
-            localStorage.setItem("jumlahTonton", tontonJumlah);
-            updateTampilanTonton();
-            showNotification("✅ Iklan selesai, saldo bertambah Rp.10!");
+                // Tambah saldo
+                let saldo = parseInt(balanceElement.innerText);
+                saldo += 10;
+                balanceElement.innerText = saldo;
 
-            cekLimitTonton();
-        }
-    }, 1000);
+                // Tambah jumlah tontonan
+                tontonJumlah += 1;
+                localStorage.setItem("jumlahTonton", tontonJumlah);
+                updateTampilanTonton();
+                showNotification("✅ Iklan selesai, saldo bertambah Rp.10!");
+
+                cekLimitTonton();
+            }
+        }, 1000);
+    }).catch(() => {
+        adButton.disabled = false;
+        adButton.innerText = "🎥 Tonton Iklan Rp.10 🎥";
+        showNotification("⚠️ Gagal memuat iklan.");
+    });
+} else {
+    showNotification("⚠️ TelegramAdsController tidak tersedia.");
+    adButton.disabled = false;
+    adButton.innerText = "🎥 Tonton Iklan Rp.10 🎥";
 }
 
 function updateTampilanTonton() {
