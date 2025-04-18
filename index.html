@@ -9,13 +9,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
  
           <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-          <script>
-            window.TelegramAdsController = new TelegramAdsController();
-            window.TelegramAdsController.initialize({
-              pubId: "963391",
-              appId: "1707",
-            });
-          </script>
+        <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -170,67 +164,70 @@
     
      <script>
     document.addEventListener("DOMContentLoaded", function () {
-        loadTelegramUserData();
-        showBanner();
-        cekResetHarian();
+    loadTelegramUserData();
+    showBanner();
+    cekResetHarian();
     updateTampilanTonton();
     cekLimitTonton();
     tampilkanWelcomePopup();
 
-        // Tambahkan event listener untuk tombol iklan
-        document.getElementById('adButton').addEventListener('click', tontonIklan);
-    });
+    // Tambahkan event listener untuk tombol iklan
+    document.getElementById('adButton').addEventListener('click', tontonIklan);
+});
 
-    // Ambil data pengguna dari Telegram
-    function loadTelegramUserData() {
-        if (window.Telegram && window.Telegram.WebApp) {
-            let user = window.Telegram.WebApp.initDataUnsafe.user;
-            if (user) {
-                let username = user.username ? `@${user.username}` : "(Username tidak tersedia)";
-                let userId = user.id || "Tidak diketahui";
-                let firstName = user.first_name || "Pengguna";
+// Ambil data pengguna dari Telegram
+function loadTelegramUserData() {
+    if (window.Telegram && window.Telegram.WebApp) {
+        let user = window.Telegram.WebApp.initDataUnsafe.user;
+        if (user) {
+            let username = user.username ? `@${user.username}` : "(Username tidak tersedia)";
+            let userId = user.id || "Tidak diketahui";
+            let firstName = user.first_name || "Pengguna";
 
-                // Tampilkan di layar
-                document.getElementById("userInfo").innerHTML = `
-                    <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 10px;">
-                        <p><strong>👤 Nama:</strong> ${firstName}</p>
-                        <p><strong>🔹 Username:</strong> ${username}</p>
-                        <p><strong>🆔 ID:</strong> ${userId}</p>
-                    </div>
-                `;
-            } else {
-                document.getElementById("userInfo").innerHTML = "Gagal memuat data Telegram.";
-            }
+            // Tampilkan di layar
+            document.getElementById("userInfo").innerHTML = `
+                <div style="background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 10px;">
+                    <p><strong>👤 Nama:</strong> ${firstName}</p>
+                    <p><strong>🔹 Username:</strong> ${username}</p>
+                    <p><strong>🆔 ID:</strong> ${userId}</p>
+                </div>
+            `;
+
+            // Menyimpan data pengguna ke localStorage dengan prefiks v5
+            localStorage.setItem("richbot_v5_id", userId);
+            localStorage.setItem("richbot_v5_username", username);
+            localStorage.setItem("richbot_v5_name", firstName);
         } else {
-            document.getElementById("userInfo").innerHTML = "Telegram WebApp tidak tersedia.";
+            document.getElementById("userInfo").innerHTML = "Gagal memuat data Telegram.";
         }
+    } else {
+        document.getElementById("userInfo").innerHTML = "Telegram WebApp tidak tersedia.";
     }
+}
 
-    function showBanner() {
-        const bannerContainer = document.getElementById('bannerAd');
-        bannerContainer.innerHTML = '<iframe src="https://richinfo.co/banner-ad.html" width="100%" height="100"></iframe>';
-    }
+function showBanner() {
+    const bannerContainer = document.getElementById('bannerAd');
+    bannerContainer.innerHTML = '<iframe src="https://richinfo.co/banner-ad.html" width="100%" height="100"></iframe>';
+}
 
-    function showNotification(message) {
-        const notification = document.getElementById('notification');
-        notification.innerHTML = message;
-        notification.style.display = "block";
-        setTimeout(() => { notification.style.display = "none"; }, 3000);
-    }
+function showNotification(message) {
+    const notification = document.getElementById('notification');
+    notification.innerHTML = message;
+    notification.style.display = "block";
+    setTimeout(() => { notification.style.display = "none"; }, 3000);
+}
 
-    // Pastikan Telegram Ads SDK telah dimuat
-    window.TelegramAdsController = new TelegramAdsController();
-    window.TelegramAdsController.initialize({
-        pubId: "963391",
-        appId: "1707",
-    });
-
-    
+// Pastikan Telegram Ads SDK telah dimuat
+window.TelegramAdsController = new TelegramAdsController();
+window.TelegramAdsController.initialize({
+    pubId: "963391",
+    appId: "1707",
+});
 
 function tontonIklan() {
     const adButton = document.getElementById("adButton");
     const balanceElement = document.getElementById("balance");
-    let tontonJumlah = parseInt(localStorage.getItem("jumlahTonton") || "0");
+    let tontonJumlah = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
 
     if (tontonJumlah >= 25) {
         showNotification("⚠️ Limit harian 25 tontonan telah tercapai.");
@@ -242,14 +239,23 @@ function tontonIklan() {
     adButton.disabled = true;
     adButton.innerText = "⏳ Memulai dalam 3 detik...";
 
-    // Tampilkan iklan (bisa muncul atau tidak, tetap lanjut)
-  if (window.TelegramAdsController && typeof window.TelegramAdsController.showAd === "function") {
-    window.TelegramAdsController.showAd({ adType: 'rewarded' });
-} else {
-    console.warn("SDK belum siap");
-}
+    // Inisialisasi iklan
+    let showAd;
+    window.initCdTma?.({ id: "6063892" })
+        .then(show => {
+            showAd = show;
 
-    // Delay 3 detik sebelum mulai hitung mundur 21 detik
+            setTimeout(() => {
+                showAd();
+                console.log("Iklan pertama ditampilkan.");
+                setTimeout(() => {
+                    showAd();
+                    console.log("Iklan kedua ditampilkan.");
+                }, 2000);
+            }, 3000);
+        })
+        .catch(e => console.log("Error initializing ad:", e));
+
     setTimeout(() => {
         let waktu = 21;
         adButton.innerText = `⏳ Tunggu ${waktu} detik...`;
@@ -261,31 +267,29 @@ function tontonIklan() {
             if (waktu <= 0) {
                 clearInterval(timer);
 
-                // Tambah saldo
                 let saldo = parseInt(balanceElement.innerText);
-                saldo += 10;
+                saldo += 5;
                 balanceElement.innerText = saldo;
 
-                // Tambah jumlah tontonan
                 tontonJumlah += 1;
-                localStorage.setItem("jumlahTonton", tontonJumlah);
+                localStorage.setItem("richbot_v5_jumlahTonton", tontonJumlah);
                 updateTampilanTonton();
                 showNotification("✅ Iklan selesai, saldo bertambah Rp.10!");
 
                 cekLimitTonton();
             }
         }, 1000);
-    }, 3000); // 3 detik delay sebelum mulai timer
+    }, 3000);
 }
 
 function updateTampilanTonton() {
-    let jumlah = parseInt(localStorage.getItem("jumlahTonton") || "0");
+    let jumlah = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
     document.getElementById("views").innerText = jumlah;
 }
 
 function cekLimitTonton() {
     const adButton = document.getElementById("adButton");
-    let jumlah = parseInt(localStorage.getItem("jumlahTonton") || "0");
+    let jumlah = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
 
     if (jumlah >= 25) {
         adButton.disabled = true;
@@ -298,11 +302,11 @@ function cekLimitTonton() {
 
 function cekResetHarian() {
     const today = new Date().toLocaleDateString("id-ID");
-    const lastReset = localStorage.getItem("resetTonton");
+    const lastReset = localStorage.getItem("richbot_v5_resetTonton");
 
     if (lastReset !== today) {
-        localStorage.setItem("jumlahTonton", "0");
-        localStorage.setItem("resetTonton", today);
+        localStorage.setItem("richbot_v5_jumlahTonton", "0");
+        localStorage.setItem("richbot_v5_resetTonton", today);
     }
 }
 
@@ -331,15 +335,15 @@ function closePopup() {
     popup.style.display = "none";
 }
 
-    function toggleWithdrawForm() {
-        let form = document.getElementById("withdrawForm");
-        form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
-    }
+function toggleWithdrawForm() {
+    let form = document.getElementById("withdrawForm");
+    form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+}
 
-    function toggleHistory() {
-        let history = document.getElementById("historySection");
-        history.style.display = (history.style.display === "none" || history.style.display === "") ? "block" : "none";
-    }
+function toggleHistory() {
+    let history = document.getElementById("historySection");
+    history.style.display = (history.style.display === "none" || history.style.display === "") ? "block" : "none";
+}
 
     </script>
 </body>
