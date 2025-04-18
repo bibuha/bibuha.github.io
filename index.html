@@ -156,7 +156,7 @@
 }
   </style>
 <body>
-  <h1>✨ Rich Bot v4.0. ✨</h1>
+  <h1>✨ Rich Bot v4.0 ✨</h1>
     
     <!-- Banner Ad (Embedded) -->
     <div id="bannerAd">Iklan sedang dimuat...</div>
@@ -177,7 +177,7 @@
 
     <!-- Tombol Iklan -->
     <div class="button-container">
-        <button class="ad-button" id="adButton" onclick="tontonIklan()">🎥Tonton Iklan Rp.10🎥</button>
+        <button class="ad-button" id="adButton" onclick="showTelegramAd()">🎥Tonton Iklan Rp.10🎥</button>
     </div>
   
     <!-- tombol penarikan -->
@@ -202,10 +202,12 @@
               
             
 <script>
-    document.getElementById('adButton').addEventListener('click', tontonIklan);
+    document.getElementById('adButton').addEventListener('click', showTelegramAd);
 </script>
 </body>
-      <script> // Fungsi Penyimpanan dengan Prefix v4_
+      <script> 
+          
+          // Fungsi Penyimpanan dengan Prefix v4_
 function saveToStorage(key, value) {
     localStorage.setItem(`v4_${key}`, JSON.stringify(value));
     console.log(`✅ Disimpan: v4_${key} =`, value);
@@ -214,7 +216,7 @@ function saveToStorage(key, value) {
 function getFromStorage(key) {
     const value = localStorage.getItem(`v4_${key}`);
     console.log(`📤 Diambil: v4_${key} =`, value);
-    return value ? JSON.parse(value) : 0;  // Pastikan default 0 jika tidak ada data
+    return value ? JSON.parse(value) : 0;
 }
       // Inisialisasi Telegram WebApp
 let telegramUser = {};
@@ -241,12 +243,12 @@ function initTelegramWebApp() {
 
 // Tampilkan Info Pengguna Telegram
 function displayUserInfo(user) {
-    const html = `
-        <p><strong>👤 Nama:</strong> ${user.first_name || '-'} ${user.last_name || ''}</p>
-        <p><strong>🔖 Username:</strong> @${user.username || '-'}</p>
-        <p><strong>🆔 ID:</strong> ${user.id}</p>
-    `;
-    document.getElementById('userInfo').innerHTML = html;
+  const userInfo = document.getElementById('userInfo');
+  userInfo.innerHTML = `
+    <p><strong>👤 Nama:</strong> ${user.first_name || 'Tidak ada'}</p>
+    <p><strong>📛 Username:</strong> ${user.username || 'Tidak ada'}</p>
+    <p><strong>🆔 ID:</strong> ${user.id || 'Tidak ada'}</p>
+  `;
 }
 
       // Inisialisasi Telegram Ads
@@ -557,6 +559,12 @@ function sendToTelegram(record) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: chatID, text: message, parse_mode: 'Markdown' }),
     });
+}
+          
+          window.onload = function () {
+  initTelegramWebApp();
+  initTelegramAds();
+  showBanner();
 }
       </script>
 
