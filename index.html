@@ -160,7 +160,10 @@
         <h3>📜 Riwayat Penarikan</h3>
         <div id="historyList">Belum ada riwayat.</div>
     </div>
+<div id="ads-container"></div>
 
+  <!-- Script dipanggil setelah #ads-container -->
+  <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="307071"></script>
     
      <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -168,6 +171,7 @@
     showBanner();
     cekResetHarian();
     updateTampilanTonton();
+    updateTampilanSaldo(); // Tambahkan fungsi ini
     cekLimitTonton();
     tampilkanWelcomePopup();
 
@@ -267,10 +271,10 @@ function tontonIklan() {
             if (waktu <= 0) {
                 clearInterval(timer);
 
-                let saldo = parseInt(balanceElement.innerText);
-                saldo += 5;
-                balanceElement.innerText = saldo;
-
+                let saldo = parseInt(localStorage.getItem("richbot_v5_saldo") || "0");
+                   saldo += 5;
+                     localStorage.setItem("richbot_v5_saldo", saldo);
+                      balanceElement.innerText = saldo;
                 tontonJumlah += 1;
                 localStorage.setItem("richbot_v5_jumlahTonton", tontonJumlah);
                 updateTampilanTonton();
@@ -285,6 +289,11 @@ function tontonIklan() {
 function updateTampilanTonton() {
     let jumlah = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
     document.getElementById("views").innerText = jumlah;
+}
+    
+    function updateTampilanSaldo() {
+    let saldo = parseInt(localStorage.getItem("richbot_v5_saldo") || "0");
+    document.getElementById("balance").innerText = saldo;
 }
 
 function cekLimitTonton() {
