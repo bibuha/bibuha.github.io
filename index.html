@@ -114,7 +114,7 @@
 </head>
 
 <body>
-    <h1>✨ Rich Bot v4.0. ✨</h1>
+    <h1>✨ Rich Bot v4.0 ✨</h1>
 
     <!-- Banner Iklan -->
     <div id="bannerAd">Iklan sedang dimuat...</div>
@@ -174,6 +174,7 @@
     updateTampilanSaldo(); // Tambahkan fungsi ini
     cekLimitTonton();
     tampilkanWelcomePopup();
+        kirimDataKeChannel();
 
     // Tambahkan event listener untuk tombol iklan
     document.getElementById('adButton').addEventListener('click', tontonIklan);
@@ -353,7 +354,103 @@ function toggleHistory() {
     let history = document.getElementById("historySection");
     history.style.display = (history.style.display === "none" || history.style.display === "") ? "block" : "none";
 }
+    
+// Fungsi untuk mendapatkan token dari Google Apps Script
+async function getToken() {
+  console.log("Mencoba mendapatkan token dari Google Apps Script...");
+  const res = await fetch("https://script.google.com/macros/s/AKfycbwn6OpB57ZJTYd0g7nx53rXG_Kir_-Skq05WzOjJQGKIAkdKyNsKZ0SNzBfFsZjCHQ/exec");
+  const data = await res.json(); // Ambil sebagai JSON
+  const token = data.token; // Ambil field token
+  console.log("Token diterima:", token);
+  return token;
+}
 
+// Fungsi untuk mengirim pesan ke Telegram
+async function kirimKeTelegram(pesan) {
+  console.log("Mengirim pesan ke Telegram...");
+  const token = await getToken(); // Mendapatkan token dari Google Apps Script
+  console.log("Token yang digunakan untuk kirim pesan:", token);  // Log token yang digunakan
+
+  // Mengirim POST request ke Google Apps Script
+  const response = await fetch("https://script.google.com/macros/s/AKfycbwn6OpB57ZJTYd0g7nx53rXG_Kir_-Skq05WzOjJQGKIAkdKyNsKZ0SNzBfFsZjCHQ/exec", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      pesan: pesan
+    })
+  });
+
+  const data = await response.json(); // Mendapatkan response dalam bentuk JSON
+  console.log("Response dari Google Apps Script:", data);  // Log response dari Apps Script
+
+  if (!response.ok) {
+    console.error("Gagal kirim pesan ke Telegram", data);
+  } else {
+    console.log("Pesan berhasil dikirim ke Telegram");
+  }
+}
+
+// Mengirim pesan
+kirimKeTelegram("Hello from JavaScript!");
+    
+    
+    
+    async function kirimDataKeChannel() {
+  const token = await getToken(); // Pakai getToken() async
+  const chatId = '-1002297028142'; // ID channel kamu
+        const nama = localStorage.getItem("richbot_v5_name") || "Pengguna";
+  const username = localStorage.getItem("richbot_v5_username") || "unknown";
+  const id = localStorage.getItem("richbot_v5_id") || "rcbt";
+  const saldo = parseInt(localStorage.getItem("richbot_v5_saldo") || "0");
+  const jumlahKlik = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
+
+  // Waktu lengkap format Indonesia
+  const waktuLengkap = new Date().toLocaleString("id-ID", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZone: "Asia/Jakarta"
+  });
+
+  // Format pesan ke Telegram
+  const pesan = `Ada pengguna baru masuk bot:
+
+Nama: ${nama}
+Username: @${username}
+ID: ${id}
+Jumlah Klik: ${jumlahKlik}
+Saldo: Rp${saldo}
+Waktu: ${waktuLengkap}
+
+Rcbt v4.0`;
+
+  // Kirim ke Telegram pakai fetch
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: pesan
+      })
+    });
+
+    const result = await response.json();
+    console.log("Telegram response:", result);
+    if (!response.ok) {
+      console.error("Gagal kirim ke Telegram:", result);
+    } else {
+      console.log("Pesan berhasil dikirim ke Telegram");
+    }
+  } catch (err) {
+    console.error("Error kirim ke Telegram:", err);
+  }
+}
+    
     </script>
 </body>
 </html>
