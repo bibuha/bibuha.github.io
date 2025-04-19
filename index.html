@@ -10,6 +10,8 @@
  
           <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
         <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
+    <script src="https://w.tads.me/widget.js"></script>
+    
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -118,6 +120,7 @@
 
     <!-- Banner Iklan -->
     <div id="bannerAd">Iklan sedang dimuat...</div>
+    
 
     <!-- Akun Telegram -->
     <div id="userInfo">Memuat data Telegram...</div>
@@ -160,6 +163,7 @@
         <h3>📜 Riwayat Penarikan</h3>
         <div id="historyList">Belum ada riwayat.</div>
     </div>
+    <div id="tads-container-393"></div>
 <div id="ads-container"></div>
 
   <!-- Script dipanggil setelah #ads-container -->
@@ -214,6 +218,33 @@ function showBanner() {
     const bannerContainer = document.getElementById('bannerAd');
     bannerContainer.innerHTML = '<iframe src="https://richinfo.co/banner-ad.html" width="100%" height="100"></iframe>';
 }
+
+	const adsNotFoundCallback = () => {
+console.log('No ads found to show');
+// Write your code here in case we couldn't display ad
+};
+
+const adController = window.tads.init({
+widgetId: 393,
+debug: false, // Use 'true' for development and 'false' for production
+onShowReward: (adId) => {
+console.log('Show ad:', adId);
+	// Write code here for reward user after ad showed or delete this func onShowReward
+},
+onClickReward: (adId) => {
+console.log('Click on ad:', adId);
+// Write code for reward user after ad cliked or delete this func onClickReward
+},
+onAdsNotFound: adsNotFoundCallback
+});
+
+adController.loadAd()
+.then(() => adController.showAd())
+           .catch((err) => {
+console.log(err);
+	adsNotFoundCallback();
+           });
+
 
 function showNotification(message) {
     const notification = document.getElementById('notification');
