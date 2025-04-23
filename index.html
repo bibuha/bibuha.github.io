@@ -6,12 +6,11 @@
     <title>Rich Bot v4.0 - Telegram & RichAds</title>
 
     <!-- Telegram WebApp & RichAds SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
  
           <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
         <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
     <script src="https://w.tads.me/widget.js"></script>
-    
     
     <style>
         body {
@@ -113,11 +112,39 @@
             cursor: pointer;
             margin-top: 10px;
         }
+    
+      #ad-button {
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 20px 0;
+            display: inline-block;
+        }
+        #ad-button:hover {
+            background-color: #006699;
+        }
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .log {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            min-height: 100px;
+        }
+    
     </style>
 </head>
 
 <body>
-    <h1>✨ Rich Bot v4.0 ✨</h1>
+    <h1>✨ Rich Bot v4.0. ✨</h1>
 
     <!-- Banner Iklan -->
     <div id="bannerAd">Iklan sedang dimuat...</div>
@@ -143,6 +170,13 @@
     <div class="button-container">
         <button class="ad-button" id="adButton">🎥 Tonton Iklan Rp.10 🎥</button>
     </div>
+    <div class="container">
+            
+        <button id="ad-button">Show Ad</button>
+        
+        <h3>Event Log:</h3>
+        <div id="event-log" class="log"></div>
+    </div>
 
     <!-- Tombol Penarikan -->
     <button class="ad-button" onclick="toggleWithdrawForm()">💸 Cairkan Saldo</button>
@@ -166,9 +200,8 @@
     </div>
     
     <div id="tads-container-393"></div>
-   
-    
 <div id="ads-container"></div>
+
   <!-- Script dipanggil setelah #ads-container -->
   <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="307071"></script>
     
@@ -258,10 +291,36 @@ function showNotification(message) {
 
 // Pastikan Telegram Ads SDK telah dimuat
 window.TelegramAdsController = new TelegramAdsController();
-window.TelegramAdsController.initialize({
-    pubId: "963391",
-    appId: "1707",
-});
+window.TelegramAdsController = new TelegramAdsController();
+        window.TelegramAdsController.initialize({
+            pubId: "963391",  // Replace with your actual publisher ID
+            appId: "1707",  // Replace with your actual app ID
+            debug: false     // Set to true for test ads
+        });
+    button.addEventListener('click', () => {
+            logEvent("Button clicked - requesting ad...");
+            
+            window.TelegramAdsController.triggerNativeNotification(false)
+                .then((result) => {
+                    logEvent("Ad successfully displayed");
+                    logEvent("Result: " + JSON.stringify(result));
+                })
+                .catch((error) => {
+                    logEvent("Ad failed to display");
+                    logEvent("Error: " + JSON.stringify(error));
+                });
+        });
+
+        // Helper function to log events
+        function logEvent(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            eventLog.innerHTML += `<p><strong>[${timestamp}]</strong> ${message}</p>`;
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+
+        // Initial log
+        logEvent("Telegram Ads Controller initialized");
+ 
 
 function tontonIklan() {
     const adButton = document.getElementById("adButton");
