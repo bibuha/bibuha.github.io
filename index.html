@@ -123,6 +123,7 @@
             cursor: pointer;
             margin: 20px 0;
             display: inline-block;
+            font-weight: bold;
         }
         #ad-button:hover {
             background-color: #006699;
@@ -140,6 +141,74 @@
             min-height: 100px;
         }
     
+    .toast {
+    visibility: hidden;
+    min-width: 250px;
+    background: rgba(0, 170, 255, 1); /* Warna biru cyan dengan transparansi */
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    padding: 12px 20px;
+    position: fixed;
+    left: 50%;
+    top: 30px;
+    transform: translateX(-50%);
+    z-index: 1000;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 10px rgba(0, 170, 255, 0.6), inset 0 0 8px rgba(0, 170, 255, 0.4);
+    transition: all 2s ease-in-out;
+    animation: pulse 4s infinite alternate;
+}
+
+/* Efek Glow Lebih Halus */
+@keyframes pulse {
+    from {
+        box-shadow: 0 0 8px rgba(0, 170, 255, 0.5);
+    }
+    to {
+        box-shadow: 0 0 15px rgba(0, 170, 255, 0.7);
+    }
+}
+
+/* Efek Muncul & Hilang */
+.toast.show {
+    visibility: visible;
+    top: 70px;
+    opacity: 1;
+}
+
+.toast.hide {
+    top: 30px;
+    opacity: 0;
+}
+    
+    .bonus-button {
+  display: inline-block;
+  background: linear-gradient(135deg, #00e676, #00c853);
+  color: #fff;
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 255, 128, 0.4);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  user-select: none;
+}
+
+.bonus-button:hover {
+  background: linear-gradient(135deg, #00c853, #00e676);
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 255, 128, 0.6);
+}
+
+#bonusTimerDisplay {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 1px;
+}
     </style>
 </head>
 
@@ -155,7 +224,7 @@
 
     <!-- Pendapatan dan Jumlah Tontonan -->
     <p><strong>💰 Saldo:</strong> Rp.<span id="balance">0</span></p>
-    <p><strong>🎥 Tontonan:</strong> <span id="views">0</span>/25</p>
+    <p><strong>🎥 Tontonan:</strong> <span id="views">0</span>/50</p>
 
     <!-- Notifikasi -->
     <div id="notification"></div>
@@ -168,15 +237,20 @@
 
     <!-- Tombol Iklan -->
     <div class="button-container">
-        <button class="ad-button" id="adButton">🎥 Tonton Iklan Rp.10 🎥</button>
+        <button class="ad-button" id="adButton">🎥 Tonton Iklan Rp.5 🎥</button>
     </div>
     <div class="container">
             
-        <button id="ad-button">Show Ad</button>
-        
-        <h3>Event Log:</h3>
-        <div id="event-log" class="log"></div>
-    </div>
+        <button id="ad-button">Ad1 Rp.test</button>
+         </div>
+    <!-- Tombol Reward Tambahan/tads -->
+<div class="bonus-button" id="bonusPlayButton" onclick="watchBonusAd()">
+  <span id="bonusTimerDisplay">Ad2 Rp.5/35</span>
+</div>
+<!-- Container untuk Tads Ads (tetap bisa digunakan widgetId 377) -->
+<div id="tads-container-393"></div>
+  <!--end tads -->
+
 
     <!-- Tombol Penarikan -->
     <button class="ad-button" onclick="toggleWithdrawForm()">💸 Cairkan Saldo</button>
@@ -199,9 +273,15 @@
         <div id="historyList">Belum ada riwayat.</div>
     </div>
     
-    <div id="tads-container-393"></div>
-<div id="ads-container"></div>
+   
 
+    
+    
+  <div id="toast" class="toast"></div>
+    <p id="statusMessage"></p>
+ 
+
+<div id="ads-container"></div>
   <!-- Script dipanggil setelah #ads-container -->
   <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="307071"></script>
     
@@ -255,129 +335,207 @@ function showBanner() {
     bannerContainer.innerHTML = '<iframe src="https://richinfo.co/banner-ad.html" width="100%" height="100"></iframe>';
 }
 
-	const adsNotFoundCallback = () => {
-console.log('No ads found to show');
-// Write your code here in case we couldn't display ad
-};
+    
+    function showToast(message, duration = 3000) {
+    let soundEffect = new Audio("warning.mp3"); // Muat file suara
+    soundEffect.play(); // Putar suara saat roulette dibuka
 
-const adController = window.tads.init({
-widgetId: 393,
-debug: false, // Use 'true' for development and 'false' for production
-onShowReward: (adId) => {
-console.log('Show ad:', adId);
-	// Write code here for reward user after ad showed or delete this func onShowReward
-},
-onClickReward: (adId) => {
-console.log('Click on ad:', adId);
-// Write code for reward user after ad cliked or delete this func onClickReward
-},
-onAdsNotFound: adsNotFoundCallback
-});
+    let toast = document.getElementById("toast");
+    toast.innerText = message;
+    toast.classList.add("show");
 
-adController.loadAd()
-.then(() => adController.showAd())
-           .catch((err) => {
-console.log(err);
-	adsNotFoundCallback();
-           });
-
-
-function showNotification(message) {
-    const notification = document.getElementById('notification');
-    notification.innerHTML = message;
-    notification.style.display = "block";
-    setTimeout(() => { notification.style.display = "none"; }, 3000);
+    setTimeout(() => {
+        toast.classList.add("hide");
+        setTimeout(() => {
+            toast.classList.remove("show", "hide");
+        }, 500);
+    }, duration);
 }
+    
+	// tads ads
+function watchBonusAd() {
+  const maxTontonPerHari = 35;
+  const cooldown = 60 * 1000; // 1 menit
+  const now = Date.now();
+
+  // Reset harian jika tanggal berubah
+  const today = new Date().toISOString().split("T")[0];
+  const lastReset = localStorage.getItem("richbot_v5_lastReset") || "";
+  if (lastReset !== today) {
+    localStorage.setItem("richbot_v5_jumlahTonton", "0");
+    localStorage.setItem("richbot_v5_lastReset", today);
+  }
+
+  // Ambil data terbaru setelah kemungkinan reset
+  let jumlahTonton = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
+  const lastBonusTime = parseInt(localStorage.getItem("richbot_v5_lastBonusTime") || "0");
+
+  // Cek limit harian
+  if (jumlahTonton >= maxTontonPerHari) {
+    showToast("⚠️ Limit tontonan hari ini telah tercapai (35x).");
+    return;
+  }
+
+  // Cek cooldown
+  if (now - lastBonusTime < cooldown) {
+    const sisa = Math.ceil((cooldown - (now - lastBonusTime)) / 1000);
+    showToast(`⏳ Tunggu ${sisa} detik sebelum iklan berikutnya.`);
+    return;
+  }
+
+  // Kalau tads tersedia, tampilkan iklan
+  if (typeof tads !== "undefined") {
+    const adController = window.tads.init({
+      widgetId: 393,
+      debug: false,
+      onShowReward: (adId) => {
+        showToast("🎥 Iklan tampil, klik iklan untuk klaim Rp.5");
+      },
+      onClickReward: (adId) => {
+        // Tambah saldo dan jumlah tonton
+        let saldo = parseInt(localStorage.getItem("richbot_v5_saldo") || "0");
+        saldo += 5;
+        jumlahTonton += 1;
+
+        localStorage.setItem("richbot_v5_saldo", saldo);
+        localStorage.setItem("richbot_v5_jumlahTonton", jumlahTonton);
+        localStorage.setItem("richbot_v5_lastBonusTime", now.toString());
+
+        // Update tampilan
+        document.getElementById("balance").innerText = "Rp " + saldo;
+        document.getElementById("views").innerText = jumlahTonton;
+
+        showToast("✅ Iklan diklik, saldo bertambah Rp.5!");
+        startBonusCooldown();
+
+        // Sembunyikan kontainer iklan
+        document.querySelectorAll('.ad-container').forEach(ad => ad.style.display = 'none');
+      },
+      onAdsNotFound: () => {
+        showToast("❌ Iklan tidak tersedia saat ini.");
+      }
+    });
+
+    adController.loadAd()
+      .then(() => adController.showAd())
+      .catch((err) => {
+        console.error(err);
+        showToast("❌ Gagal memuat iklan bonus.");
+      });
+  } else {
+    showToast("❌ Sistem iklan belum siap.");
+  }
+}
+    
+    function startBonusCooldown() {
+  const btn = document.getElementById("bonusPlayButton");
+  const timerText = document.getElementById("bonusTimerDisplay");
+  let timeLeft = 60;
+
+  btn.style.pointerEvents = "none"; // Nonaktifkan klik
+  btn.style.opacity = "0.6"; // Opsional, untuk efek tombol disable
+
+  const originalText = "Ad2 Rp.5/35";
+  timerText.textContent = `⏳ ${timeLeft}s`;
+
+  const interval = setInterval(() => {
+    timeLeft--;
+    timerText.textContent = `⏳ ${timeLeft}s`;
+
+    if (timeLeft <= 0) {
+      clearInterval(interval);
+      timerText.textContent = originalText;
+      btn.style.pointerEvents = "auto";
+      btn.style.opacity = "1";
+    }
+  }, 1000);
+}
+// end tads ads
+
 
 // Pastikan Telegram Ads SDK telah dimuat
 window.TelegramAdsController = new TelegramAdsController();
-window.TelegramAdsController = new TelegramAdsController();
-        window.TelegramAdsController.initialize({
-            pubId: "963391",  // Replace with your actual publisher ID
-            appId: "1707",  // Replace with your actual app ID
-            debug: false     // Set to true for test ads
+window.TelegramAdsController.initialize({
+    pubId: "963391",  // Ganti dengan publisher ID Anda
+    appId: "1707",  // Ganti dengan app ID Anda
+    debug: false      // Setel debug ke true untuk menampilkan log di konsol
+});
+
+const button = document.getElementById('ad-button');
+button.addEventListener('click', () => {
+    logEvent("Button clicked - requesting ad...");
+
+    window.TelegramAdsController.triggerNativeNotification(false)
+        .then((result) => {
+            logEvent("Ad successfully displayed");
+            logEvent("Result: " + JSON.stringify(result));
+        })
+        .catch((error) => {
+            logEvent("Ad failed to display");
+            logEvent("Error: " + JSON.stringify(error));
         });
-    button.addEventListener('click', () => {
-            logEvent("Button clicked - requesting ad...");
-            
-            window.TelegramAdsController.triggerNativeNotification(false)
-                .then((result) => {
-                    logEvent("Ad successfully displayed");
-                    logEvent("Result: " + JSON.stringify(result));
-                })
-                .catch((error) => {
-                    logEvent("Ad failed to display");
-                    logEvent("Error: " + JSON.stringify(error));
-                });
-        });
+});
 
-        // Helper function to log events
-        function logEvent(message) {
-            const timestamp = new Date().toLocaleTimeString();
-            eventLog.innerHTML += `<p><strong>[${timestamp}]</strong> ${message}</p>`;
-            eventLog.scrollTop = eventLog.scrollHeight;
-        }
+// Helper function untuk log event menggunakan console.log
+function logEvent(message) {
+    const timestamp = new Date().toLocaleTimeString();
+    console.log(`[${timestamp}] ${message}`); // Diganti menjadi log ke konsol
+}
+// Initial log ke konsol
+logEvent("Telegram Ads Controller initialized"); 
 
-        // Initial log
-        logEvent("Telegram Ads Controller initialized");
- 
-
+    
 function tontonIklan() {
     const adButton = document.getElementById("adButton");
     const balanceElement = document.getElementById("balance");
     let tontonJumlah = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
 
-    if (tontonJumlah >= 25) {
-        showNotification("⚠️ Limit harian 25 tontonan telah tercapai.");
+    if (tontonJumlah >= 35) {
+        showNotification("⚠️ Limit harian 35 tontonan telah tercapai.");
         adButton.disabled = true;
         adButton.innerText = "Limit Harian Tercapai";
         return;
     }
 
     adButton.disabled = true;
-    adButton.innerText = "⏳ Memulai dalam 3 detik...";
+    adButton.innerText = "⏳ Menyiapkan iklan...";
 
-    // Inisialisasi iklan
-    let showAd;
     window.initCdTma?.({ id: "6063892" })
-        .then(show => {
-            showAd = show;
+        .then(showAd => {
+            showAd();
+            console.log("Iklan ditampilkan.");
 
-            setTimeout(() => {
-                showAd();
-                console.log("Iklan pertama ditampilkan.");
-                setTimeout(() => {
-                    showAd();
-                    console.log("Iklan kedua ditampilkan.");
-                }, 2000);
-            }, 3000);
-        })
-        .catch(e => console.log("Error initializing ad:", e));
-
-    setTimeout(() => {
-        let waktu = 21;
-        adButton.innerText = `⏳ Tunggu ${waktu} detik...`;
-
-        let timer = setInterval(() => {
-            waktu--;
+            // Mulai hitung mundur 21 detik setelah iklan muncul
+            let waktu = 21;
             adButton.innerText = `⏳ Tunggu ${waktu} detik...`;
 
-            if (waktu <= 0) {
-                clearInterval(timer);
+            let timer = setInterval(() => {
+                waktu--;
+                adButton.innerText = `⏳ Tunggu ${waktu} detik...`;
 
-                let saldo = parseInt(localStorage.getItem("richbot_v5_saldo") || "0");
-                   saldo += 5;
-                     localStorage.setItem("richbot_v5_saldo", saldo);
-                      balanceElement.innerText = saldo;
-                tontonJumlah += 1;
-                localStorage.setItem("richbot_v5_jumlahTonton", tontonJumlah);
-                updateTampilanTonton();
-                showNotification("✅ Iklan selesai, saldo bertambah Rp.10!");
+                if (waktu <= 0) {
+                    clearInterval(timer);
 
-                cekLimitTonton();
-            }
-        }, 1000);
-    }, 3000);
+                    let saldo = parseInt(localStorage.getItem("richbot_v5_saldo") || "0");
+                    saldo += 5;
+                    localStorage.setItem("richbot_v5_saldo", saldo);
+                    balanceElement.innerText = saldo;
+
+                    tontonJumlah += 1;
+                    localStorage.setItem("richbot_v5_jumlahTonton", tontonJumlah);
+                    updateTampilanTonton();
+                    showNotification("✅ Iklan selesai, saldo bertambah Rp.5!");
+
+                    cekLimitTonton();
+                }
+            }, 1000);
+        })
+        .catch(e => {
+            console.log("Error initializing ad:", e);
+            showNotification("❌ Gagal memuat iklan, silakan coba lagi.");
+            adButton.disabled = false;
+            adButton.innerText = "🎥 Tonton Iklan Rp.5 🎥";
+        });
 }
 
 function updateTampilanTonton() {
@@ -394,12 +552,12 @@ function cekLimitTonton() {
     const adButton = document.getElementById("adButton");
     let jumlah = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
 
-    if (jumlah >= 25) {
+    if (jumlah >= 35) {
         adButton.disabled = true;
         adButton.innerText = "Limit Harian Tercapai";
     } else {
         adButton.disabled = false;
-        adButton.innerText = "🎥 Tonton Iklan Rp.10 🎥";
+        adButton.innerText = "🎥 Tonton Iklan Rp.5/35 🎥";
     }
 }
 
@@ -417,11 +575,15 @@ function showNotification(pesan) {
     const notif = document.getElementById("notification");
     notif.innerText = pesan;
     notif.style.display = "block";
-    notif.style.background = "#d1f7d1";
-    notif.style.padding = "10px";
-    notif.style.marginTop = "10px";
-    notif.style.border = "1px solid #1abc9c";
-    notif.style.borderRadius = "10px";
+    notif.style.background = "#2ecc71"; // Hijau cerah
+    notif.style.color = "#ffffff"; // Teks putih
+    notif.style.padding = "12px 16px";
+    notif.style.marginTop = "15px";
+    notif.style.border = "2px solid #27ae60";
+    notif.style.borderRadius = "12px";
+    notif.style.fontWeight = "bold";
+    notif.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.2)";
+    notif.style.transition = "all 0.3s ease";
 
     setTimeout(() => {
         notif.style.display = "none";
