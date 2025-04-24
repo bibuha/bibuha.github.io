@@ -11,6 +11,8 @@
           <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
         <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
     <script src="https://w.tads.me/widget.js"></script>
+    <script data-onclicka-banner="306361" async src="https://js.onclckmn.com/banner-admanager/oncbanner.m.js" data-onclicka-banner-ar="c"></script>
+    <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="307071"></script>
     
     <style>
         body {
@@ -223,8 +225,8 @@
     <div id="userInfo">Memuat data Telegram...</div>
 
     <!-- Pendapatan dan Jumlah Tontonan -->
-    <p><strong>💰 Saldo:</strong> Rp.<span id="balance">0</span></p>
-    <p><strong>🎥 Tontonan:</strong> <span id="views">0</span>/50</p>
+    <p><strong>🪙 point :</strong>₵ <span id="balance">0</span></p>
+    <p><strong>🎯 limit :</strong> <span id="views">0</span>/100</p>
 
     <!-- Notifikasi -->
     <div id="notification"></div>
@@ -237,7 +239,7 @@
 
     <!-- Tombol Iklan -->
     <div class="button-container">
-        <button class="ad-button" id="adButton">🎥 Tonton Iklan Rp.5 🎥</button>
+        <button class="ad-button" id="adButton">🎥 Tonton Iklan 5 🎥</button>
     </div>
     <div class="container">
             
@@ -245,10 +247,10 @@
          </div>
     <!-- Tombol Reward Tambahan/tads -->
 <div class="bonus-button" id="bonusPlayButton" onclick="watchBonusAd()">
-  <span id="bonusTimerDisplay">Ad2 Rp.5/35</span>
+  <span id="bonusTimerDisplay">Ad2 5/50</span>
 </div>
 <!-- Container untuk Tads Ads (tetap bisa digunakan widgetId 377) -->
-<div id="tads-container-393"></div>
+<div id="tads-container-380"></div>
   <!--end tads -->
 
 
@@ -273,6 +275,8 @@
         <div id="historyList">Belum ada riwayat.</div>
     </div>
     
+    <div data-banner="6063893"></div>
+    
    
 
     
@@ -281,10 +285,6 @@
     <p id="statusMessage"></p>
  
 
-<div id="ads-container"></div>
-  <!-- Script dipanggil setelah #ads-container -->
-  <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="307071"></script>
-    
      <script>
     document.addEventListener("DOMContentLoaded", function () {
     loadTelegramUserData();
@@ -354,7 +354,7 @@ function showBanner() {
     
 	// tads ads
 function watchBonusAd() {
-  const maxTontonPerHari = 35;
+  const maxTontonPerHari = 50;
   const cooldown = 60 * 1000; // 1 menit
   const now = Date.now();
 
@@ -386,7 +386,7 @@ function watchBonusAd() {
   // Kalau tads tersedia, tampilkan iklan
   if (typeof tads !== "undefined") {
     const adController = window.tads.init({
-      widgetId: 393,
+      widgetId: 380,
       debug: false,
       onShowReward: (adId) => {
         showToast("🎥 Iklan tampil, klik iklan untuk klaim Rp.5");
@@ -435,7 +435,7 @@ function watchBonusAd() {
   btn.style.pointerEvents = "none"; // Nonaktifkan klik
   btn.style.opacity = "0.6"; // Opsional, untuk efek tombol disable
 
-  const originalText = "Ad2 Rp.5/35";
+  const originalText = "Ad2 Rp.5/50";
   timerText.textContent = `⏳ ${timeLeft}s`;
 
   const interval = setInterval(() => {
@@ -490,7 +490,7 @@ function tontonIklan() {
     const balanceElement = document.getElementById("balance");
     let tontonJumlah = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
 
-    if (tontonJumlah >= 35) {
+    if (tontonJumlah >= 50) {
         showNotification("⚠️ Limit harian 35 tontonan telah tercapai.");
         adButton.disabled = true;
         adButton.innerText = "Limit Harian Tercapai";
@@ -534,7 +534,7 @@ function tontonIklan() {
             console.log("Error initializing ad:", e);
             showNotification("❌ Gagal memuat iklan, silakan coba lagi.");
             adButton.disabled = false;
-            adButton.innerText = "🎥 Tonton Iklan Rp.5 🎥";
+            adButton.innerText = "🎥 Tonton Iklan 5 🎥";
         });
 }
 
@@ -552,12 +552,12 @@ function cekLimitTonton() {
     const adButton = document.getElementById("adButton");
     let jumlah = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
 
-    if (jumlah >= 35) {
+    if (jumlah >= 50) {
         adButton.disabled = true;
         adButton.innerText = "Limit Harian Tercapai";
     } else {
         adButton.disabled = false;
-        adButton.innerText = "🎥 Tonton Iklan Rp.5/35 🎥";
+        adButton.innerText = "🎥 Tonton Iklan 5/50 🎥";
     }
 }
 
