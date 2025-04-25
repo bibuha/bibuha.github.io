@@ -6,10 +6,9 @@
     <title>Rich Bot v4.0 - Telegram & RichAds</title>
 
     <!-- Telegram WebApp & RichAds SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
- 
-          <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-        <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
     <script src="https://w.tads.me/widget.js"></script>
     <script data-onclicka-banner="306361" async src="https://js.onclckmn.com/banner-admanager/oncbanner.m.js" data-onclicka-banner-ar="c"></script>
     <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="307071"></script>
@@ -115,33 +114,7 @@
             margin-top: 10px;
         }
     
-      #ad-button {
-            background-color: #0088cc;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 20px 0;
-            display: inline-block;
-            font-weight: bold;
-        }
-        #ad-button:hover {
-            background-color: #006699;
-        }
-        .container {
-            text-align: center;
-            margin-top: 50px;
-        }
-        .log {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            min-height: 100px;
-        }
+      
     
     .toast {
     visibility: hidden;
@@ -218,7 +191,7 @@
     <h1>✨ Rich Bot v4.0. ✨</h1>
 
     <!-- Banner Iklan -->
-    <div id="bannerAd">Iklan sedang dimuat...</div>
+      <div data-banner="6063893"></div>
     
 
     <!-- Akun Telegram -->
@@ -226,7 +199,8 @@
 
     <!-- Pendapatan dan Jumlah Tontonan -->
     <p><strong>🪙 point :</strong>₵ <span id="balance">0</span></p>
-    <p><strong>🎯 limit :</strong> <span id="views">0</span>/100</p>
+    <p><strong>🎯 limit :</strong> <span id="views">0</span>/50</p>
+    <p><strong>🎁 ad2 :</strong> <span id="tontonbonus">0</span></p>
 
     <!-- Notifikasi -->
     <div id="notification"></div>
@@ -241,16 +215,20 @@
     <div class="button-container">
         <button class="ad-button" id="adButton">🎥 Tonton Iklan 5 🎥</button>
     </div>
-    <div class="container">
-            
-        <button id="ad-button">Ad1 Rp.test</button>
-         </div>
+    
+<button 
+  onclick="window.open('https://www.profitableratecpm.com/z7m6g94rhv?key=2816c0ef36571df491f429fc7cbdcfac', '_blank');" 
+  style="padding: 12px 20px; font-size: 16px; border: none; border-radius: 25px; background-color: red; color: white; cursor: pointer;">
+  🎥 Tonton Iklan
+</button>
+    
     <!-- Tombol Reward Tambahan/tads -->
+    <div id="tads-container-380"></div>
 <div class="bonus-button" id="bonusPlayButton" onclick="watchBonusAd()">
-  <span id="bonusTimerDisplay">Ad2 5/50</span>
+  <span id="bonusTimerDisplay">🎁 Ad2 5</span>
 </div>
 <!-- Container untuk Tads Ads (tetap bisa digunakan widgetId 377) -->
-<div id="tads-container-380"></div>
+
   <!--end tads -->
 
 
@@ -274,13 +252,7 @@
         <h3>📜 Riwayat Penarikan</h3>
         <div id="historyList">Belum ada riwayat.</div>
     </div>
-    
-    <div data-banner="6063893"></div>
-    
-   
-
-    
-    
+        
   <div id="toast" class="toast"></div>
     <p id="statusMessage"></p>
  
@@ -288,13 +260,15 @@
      <script>
     document.addEventListener("DOMContentLoaded", function () {
     loadTelegramUserData();
-    showBanner();
+    
     cekResetHarian();
     updateTampilanTonton();
     updateTampilanSaldo(); // Tambahkan fungsi ini
     cekLimitTonton();
     tampilkanWelcomePopup();
         kirimDataKeChannel();
+        
+        updateTampilanTontonBonus();
 
     // Tambahkan event listener untuk tombol iklan
     document.getElementById('adButton').addEventListener('click', tontonIklan);
@@ -330,10 +304,7 @@ function loadTelegramUserData() {
     }
 }
 
-function showBanner() {
-    const bannerContainer = document.getElementById('bannerAd');
-    bannerContainer.innerHTML = '<iframe src="https://richinfo.co/banner-ad.html" width="100%" height="100"></iframe>';
-}
+
 
     
     function showToast(message, duration = 3000) {
@@ -362,17 +333,17 @@ function watchBonusAd() {
   const today = new Date().toISOString().split("T")[0];
   const lastReset = localStorage.getItem("richbot_v5_lastReset") || "";
   if (lastReset !== today) {
-    localStorage.setItem("richbot_v5_jumlahTonton", "0");
+    localStorage.setItem("richbot_v5_jumlahTontonBonus", "0");
     localStorage.setItem("richbot_v5_lastReset", today);
   }
 
   // Ambil data terbaru setelah kemungkinan reset
-  let jumlahTonton = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
+  let jumlahTonton = parseInt(localStorage.getItem("richbot_v5_jumlahTontonBonus") || "0");
   const lastBonusTime = parseInt(localStorage.getItem("richbot_v5_lastBonusTime") || "0");
 
   // Cek limit harian
   if (jumlahTonton >= maxTontonPerHari) {
-    showToast("⚠️ Limit tontonan hari ini telah tercapai (35x).");
+    showToast("⚠️ Limit tontonan hari ini telah tercapai (50x).");
     return;
   }
 
@@ -389,7 +360,7 @@ function watchBonusAd() {
       widgetId: 380,
       debug: false,
       onShowReward: (adId) => {
-        showToast("🎥 Iklan tampil, klik iklan untuk klaim Rp.5");
+        showToast("🎥 Iklan tampil, klik iklan untuk klaim 5 point");
       },
       onClickReward: (adId) => {
         // Tambah saldo dan jumlah tonton
@@ -398,14 +369,14 @@ function watchBonusAd() {
         jumlahTonton += 1;
 
         localStorage.setItem("richbot_v5_saldo", saldo);
-        localStorage.setItem("richbot_v5_jumlahTonton", jumlahTonton);
+        localStorage.setItem("richbot_v5_jumlahTontonBonus", jumlahTonton);
         localStorage.setItem("richbot_v5_lastBonusTime", now.toString());
 
         // Update tampilan
-        document.getElementById("balance").innerText = "Rp " + saldo;
-        document.getElementById("views").innerText = jumlahTonton;
-
-        showToast("✅ Iklan diklik, saldo bertambah Rp.5!");
+        document.getElementById("balance").innerText = "." + saldo;
+        document.getElementById("tontonbonus").innerText = jumlahTonton + "/50";
+          
+        showToast("✅ Iklan diklik, saldo bertambah 5 point");
         startBonusCooldown();
 
         // Sembunyikan kontainer iklan
@@ -435,7 +406,7 @@ function watchBonusAd() {
   btn.style.pointerEvents = "none"; // Nonaktifkan klik
   btn.style.opacity = "0.6"; // Opsional, untuk efek tombol disable
 
-  const originalText = "Ad2 Rp.5/50";
+  const originalText = "Ad2 5/";
   timerText.textContent = `⏳ ${timeLeft}s`;
 
   const interval = setInterval(() => {
@@ -450,39 +421,15 @@ function watchBonusAd() {
     }
   }, 1000);
 }
+    
+    function updateTampilanTontonBonus() {
+  const jumlahTonton = parseInt(localStorage.getItem("richbot_v5_jumlahTontonBonus") || "0");
+  document.getElementById("tontonbonus").innerText = jumlahTonton + "/50";
+}
 // end tads ads
 
 
-// Pastikan Telegram Ads SDK telah dimuat
-window.TelegramAdsController = new TelegramAdsController();
-window.TelegramAdsController.initialize({
-    pubId: "963391",  // Ganti dengan publisher ID Anda
-    appId: "1707",  // Ganti dengan app ID Anda
-    debug: false      // Setel debug ke true untuk menampilkan log di konsol
-});
 
-const button = document.getElementById('ad-button');
-button.addEventListener('click', () => {
-    logEvent("Button clicked - requesting ad...");
-
-    window.TelegramAdsController.triggerNativeNotification(false)
-        .then((result) => {
-            logEvent("Ad successfully displayed");
-            logEvent("Result: " + JSON.stringify(result));
-        })
-        .catch((error) => {
-            logEvent("Ad failed to display");
-            logEvent("Error: " + JSON.stringify(error));
-        });
-});
-
-// Helper function untuk log event menggunakan console.log
-function logEvent(message) {
-    const timestamp = new Date().toLocaleTimeString();
-    console.log(`[${timestamp}] ${message}`); // Diganti menjadi log ke konsol
-}
-// Initial log ke konsol
-logEvent("Telegram Ads Controller initialized"); 
 
     
 function tontonIklan() {
@@ -491,7 +438,7 @@ function tontonIklan() {
     let tontonJumlah = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
 
     if (tontonJumlah >= 50) {
-        showNotification("⚠️ Limit harian 35 tontonan telah tercapai.");
+        showNotification("⚠️ Limit harian 50 tontonan telah tercapai.");
         adButton.disabled = true;
         adButton.innerText = "Limit Harian Tercapai";
         return;
@@ -557,7 +504,7 @@ function cekLimitTonton() {
         adButton.innerText = "Limit Harian Tercapai";
     } else {
         adButton.disabled = false;
-        adButton.innerText = "🎥 Tonton Iklan 5/50 🎥";
+        adButton.innerText = "🎥 Tonton Iklan 5 ";
     }
 }
 
