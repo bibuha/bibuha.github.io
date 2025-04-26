@@ -10,7 +10,7 @@
     
     <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
     <script src="https://w.tads.me/widget.js"></script>
-    <script data-onclicka-banner="306361" async src="https://js.onclckmn.com/banner-admanager/oncbanner.m.js" data-onclicka-banner-ar="c"></script>
+    <script data-onclicka-banner="6063893" async src="https://js.onclckmn.com/banner-admanager/oncbanner.m.js" data-onclicka-banner-ar="c"></script>
     <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="307071"></script>
     
     <style>
@@ -64,20 +64,89 @@
             justify-content: center;
         }
 
-        #withdrawForm, #historySection {
-            display: none;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            margin-top: 20px;
-        }
+       /* Navbar styling */
+/* Navbar bawah */
+.bottom-navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    background: transparent; /* Tidak ada background hitam */
+    box-shadow: 0 -1px 5px rgba(0,0,0,0.1); /* Opsional: bayangan tipis */
+    z-index: 1000;
+}
 
-        input, button {
-            margin: 10px;
-            padding: 10px;
-            border-radius: 5px;
-        }
+.ad-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
 
+.ad-button:hover {
+    background-color: #45a049;
+}
+
+/* Form Styling */
+.form-container {
+    display: none;
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px;
+    margin-bottom: 80px; /* Supaya tidak ketutupan navbar */
+}
+
+.form-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.form-container button {
+    padding: 12px 24px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Riwayat Penarikan Styling */
+.history-container {
+    display: none;
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px;
+    margin-bottom: 80px; /* Supaya tidak ketutupan navbar */
+}
+
+#historyList {
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    min-height: 50px;
+}
+
+/* Show form and history on button click */
+.show {
+    display: block;
+}
+/* end navbar */
+    
         .notification {
             position: fixed;
             top: 20px;
@@ -184,6 +253,34 @@
   font-family: 'Orbitron', sans-serif;
   letter-spacing: 1px;
 }
+    .bonus-button.cooldown {
+  background: linear-gradient(135deg, #9e9e9e, #757575); /* Abu-abu */
+  box-shadow: 0 4px 10px rgba(128, 128, 128, 0.5);
+  cursor: not-allowed;
+}
+    
+    #redirectButton {
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 15px;
+      transition: background 0.3s;
+    }
+    #redirectButton:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    #info {
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      margin-top: 10px;
+      color: #333;
+    }
+    
     </style>
 </head>
 
@@ -216,11 +313,10 @@
         <button class="ad-button" id="adButton">🎥 Tonton Iklan 5 🎥</button>
     </div>
     
-<button 
-  onclick="window.open('https://www.profitableratecpm.com/z7m6g94rhv?key=2816c0ef36571df491f429fc7cbdcfac', '_blank');" 
-  style="padding: 12px 20px; font-size: 16px; border: none; border-radius: 25px; background-color: red; color: white; cursor: pointer;">
-  🎥 Tonton Iklan
-</button>
+<center>
+     <div id="info">💎 Klik: 0/5</div>
+  <button id="redirectButton">Ad1 5</button> 
+</center>
     
     <!-- Tombol Reward Tambahan/tads -->
     <div id="tads-container-380"></div>
@@ -232,30 +328,31 @@
   <!--end tads -->
 
 
-    <!-- Tombol Penarikan -->
+    
+<!-- Navbar di bawah -->
+<nav class="bottom-navbar">
     <button class="ad-button" onclick="toggleWithdrawForm()">💸 Cairkan Saldo</button>
-
-    <!-- Form Penarikan -->
-    <div id="withdrawForm">
-        <h3>💸 Form Penarikan</h3>
-        <input type="text" id="namaDANA" placeholder="Nama DANA">
-        <input type="text" id="noDANA" placeholder="Nomor DANA (10-13 digit)">
-        <input type="number" id="amount" placeholder="Jumlah (Min Rp.1000, kelipatan Rp.1000)">
-        <button onclick="withdraw()">✅ Tarik Saldo</button>
-    </div>
-
-    <!-- Tombol Riwayat Penarikan -->
     <button class="ad-button" onclick="toggleHistory()">📜 Riwayat Penarikan</button>
+</nav>
 
-    <!-- Riwayat Penarikan -->
-    <div id="historySection">
-        <h3>📜 Riwayat Penarikan</h3>
-        <div id="historyList">Belum ada riwayat.</div>
-    </div>
+<!-- Form Penarikan -->
+<div id="withdrawForm" class="form-container">
+    <h3>💸 Form Penarikan</h3>
+    <input type="text" id="namaDANA" placeholder="Nama DANA">
+    <input type="text" id="noDANA" placeholder="Nomor DANA (10-13 digit)">
+    <input type="number" id="amount" placeholder="Jumlah (Min Rp.1000, kelipatan Rp.1000)">
+    <button onclick="withdraw()">✅ Tarik Saldo</button>
+</div>
+
+<!-- Riwayat Penarikan -->
+<div id="historySection" class="history-container">
+    <h3>📜 Riwayat Penarikan</h3>
+    <div id="historyList">Belum ada riwayat.</div>
+</div>
         
   <div id="toast" class="toast"></div>
     <p id="statusMessage"></p>
- 
+ <!-- Bidvertiser2099524 -->
 
      <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -266,9 +363,10 @@
     updateTampilanSaldo(); // Tambahkan fungsi ini
     cekLimitTonton();
     tampilkanWelcomePopup();
-        kirimDataKeChannel();
-        
+        kirimDataKeChannel();      
         updateTampilanTontonBonus();
+        updateButton();
+  updateBalance();
 
     // Tambahkan event listener untuk tombol iklan
     document.getElementById('adButton').addEventListener('click', tontonIklan);
@@ -403,10 +501,8 @@ function watchBonusAd() {
   const timerText = document.getElementById("bonusTimerDisplay");
   let timeLeft = 60;
 
+  btn.classList.add("cooldown"); // Tambahkan class cooldown
   btn.style.pointerEvents = "none"; // Nonaktifkan klik
-  btn.style.opacity = "0.6"; // Opsional, untuk efek tombol disable
-
-  const originalText = "Ad2 5/";
   timerText.textContent = `⏳ ${timeLeft}s`;
 
   const interval = setInterval(() => {
@@ -415,9 +511,9 @@ function watchBonusAd() {
 
     if (timeLeft <= 0) {
       clearInterval(interval);
-      timerText.textContent = originalText;
-      btn.style.pointerEvents = "auto";
-      btn.style.opacity = "1";
+      timerText.innerHTML = "🎁 Ad2 5"; // Kembalikan teks awal
+      btn.classList.remove("cooldown"); // Hapus class cooldown
+      btn.style.pointerEvents = "auto"; // Aktifkan klik lagi
     }
   }, 1000);
 }
@@ -429,8 +525,96 @@ function watchBonusAd() {
 // end tads ads
 
 
+const links = [
+    "https://www.profitableratecpm.com/z7m6g94rhv?key=2816c0ef36571df491f429fc7cbdcfac", 
+    "https://www.profitableratecpm.com/fu5xyp7gse?key=08b4590688a9007d55fe84b6a799fb70"
+  ];
 
+  let clickCount = 0;
+  const maxClicks = 5;
+  let isWaiting = false;
+  let timerInterval;
+  let waitSeconds = 60;
 
+  // Load click dan saldo dari localStorage
+  if (localStorage.getItem('richbot_v5_clicks')) {
+    clickCount = parseInt(localStorage.getItem('richbot_v5_clicks'));
+  }
+
+  if (!localStorage.getItem('richbot_v5_saldo')) {
+    localStorage.setItem('richbot_v5_saldo', 0);
+  }
+
+  updateButton();
+  updateBalance();
+
+  document.getElementById('redirectButton').addEventListener('click', () => {
+    if (clickCount >= maxClicks || isWaiting) return;
+
+    const linkToOpen = links[clickCount % 2];
+    window.open(linkToOpen, '_blank');
+
+    clickCount++;
+    localStorage.setItem('richbot_v5_clicks', clickCount);
+
+    // Tambahkan 5 rupiah ke saldo
+    let saldo = parseInt(localStorage.getItem('richbot_v5_saldo')) || 0;
+    saldo += 5;
+    localStorage.setItem('richbot_v5_saldo', saldo);
+    updateBalance();
+
+    updateButton(); // <--- Tambahkan ini di sini AGAR JUMLAH KLIK LANGSUNG UPDATE
+
+    startCooldown();
+});
+
+  function startCooldown() {
+    isWaiting = true;
+    let remaining = waitSeconds;
+    const button = document.getElementById('redirectButton');
+    button.disabled = true;
+    button.textContent = `Tunggu ${remaining}s`;
+
+    timerInterval = setInterval(() => {
+      remaining--;
+      button.textContent = `Tunggu ${remaining}s`;
+
+      if (remaining <= 0) {
+        clearInterval(timerInterval);
+        isWaiting = false;
+        updateButton();
+      }
+    }, 1000);
+  }
+
+  function updateButton() {
+    const button = document.getElementById('redirectButton');
+    const info = document.getElementById('info');
+    info.textContent = `💎Klik: ${clickCount}/${maxClicks}`;
+
+    if (clickCount >= maxClicks) {
+      button.disabled = true;
+      button.textContent = "Limit Harian Tercapai";
+    } else if (!isWaiting) {
+      button.disabled = false;
+      button.textContent = "💎Ad1 5";
+    }
+  }
+
+  function updateBalance() {
+    const balance = localStorage.getItem('richbot_v5_saldo') || 0;
+    document.getElementById('balance').textContent = balance;
+  }
+
+  // Reset otomatis setiap jam 00:00
+  setInterval(() => {
+    const now = new Date();
+    if (now.getHours() === 0 && now.getMinutes() === 0) {
+      localStorage.removeItem('richbot_v5_clicks');
+      // saldo tetap tidak reset
+      location.reload();
+    }
+  }, 60000); // cek tiap menit
     
 function tontonIklan() {
     const adButton = document.getElementById("adButton");
@@ -547,14 +731,39 @@ function closePopup() {
     popup.style.display = "none";
 }
 
+// Fungsi untuk toggle form penarikan
 function toggleWithdrawForm() {
-    let form = document.getElementById("withdrawForm");
-    form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+    const withdrawForm = document.getElementById('withdrawForm');
+    withdrawForm.classList.toggle('show');
 }
 
+// Fungsi untuk toggle riwayat penarikan
 function toggleHistory() {
-    let history = document.getElementById("historySection");
-    history.style.display = (history.style.display === "none" || history.style.display === "") ? "block" : "none";
+    const historySection = document.getElementById('historySection');
+    historySection.classList.toggle('show');
+}
+
+// Fungsi untuk penarikan saldo (mockup untuk penarikan)
+function withdraw() {
+    const namaDANA = document.getElementById('namaDANA').value;
+    const noDANA = document.getElementById('noDANA').value;
+    const amount = parseInt(document.getElementById('amount').value);
+
+    if (!namaDANA || !noDANA || !amount || amount < 1000 || amount % 1000 !== 0) {
+        alert("Harap lengkapi data dengan benar!");
+        return;
+    }
+
+    // Simpan riwayat penarikan (contoh, menggunakan localStorage atau langsung di tampilkan)
+    const historyList = document.getElementById('historyList');
+    const historyItem = document.createElement('div');
+    historyItem.textContent = `Nama: ${namaDANA}, No DANA: ${noDANA}, Jumlah: Rp.${amount}`;
+    historyList.appendChild(historyItem);
+
+    // Clear input fields after successful withdrawal
+    document.getElementById('namaDANA').value = '';
+    document.getElementById('noDANA').value = '';
+    document.getElementById('amount').value = '';
 }
     
 // Fungsi untuk mendapatkan token dari Google Apps Script
