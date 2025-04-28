@@ -352,61 +352,10 @@ h1 {
 
   <!--end tads -->
 <!-- Tombol muncul dulu -->
-<button onclick="showAds()">Tampilkan Iklan</button>
-<div id="ad-container"></div>
-    
-    <div id="debugConsole" style="background:#111; color:#0f0; font-size:12px; padding:10px; margin:10px; max-height:150px; overflow:auto; border-radius:10px;">
-  <strong>Debug Log:</strong><br>
-</div>
-
-<!-- Baru setelah itu script kamu -->
-<script src="https://inapp.telega.io/sdk/v1/sdk.js"></script>
-<script>
-let ads = null;
-
-function initializeAds() {
-    ads = window.TelegaIn.AdsController.create_miniapp({
-        token: '32790e18-1463-49a8-bef8-ff8d8859aec0'
-    });
-}
-
-function showAds() {
-    if (!ads) {
-        logToScreen("Iklan belum siap.");
-        showToast("Iklan belum siap. Coba lagi sebentar."); 
-        return;
-    }
-    logToScreen("Menampilkan iklan...");
-    ads.ad_show({
-      container: '#ad-container',
-      adBlockUuid: 'b298d655-dc25-483d-9042-8221e34cabe0'
-    });
-}
-
-function logToScreen(message) {
-    console.log(message);
-    const debugDiv = document.getElementById('debugConsole');
-    if (debugDiv) {
-        debugDiv.innerHTML += message + '<br>';
-        debugDiv.scrollTop = debugDiv.scrollHeight;
-    }
-}
-
-// Tangkap semua error global
-window.onerror = function(message, source, lineno, colno, error) {
-    const errorMessage = `ERROR: ${message} at ${source}:${lineno}:${colno}`;
-    logToScreen(errorMessage);
-    return false;
-};
-
-// Inisialisasi ads setelah WebApp siap
-document.addEventListener("DOMContentLoaded", function () {
-    setTimeout(initializeAds, 1000); 
-});
-</script>
+    <button onclick="showAds()">Tampilkan Iklan</button>
 
 
-
+  
     
 <!-- Navbar di bawah -->
 <nav class="bottom-navbar">
@@ -433,7 +382,11 @@ document.addEventListener("DOMContentLoaded", function () {
     <p id="statusMessage"></p>
  <!-- Bidvertiser2099524 -->
 
-
+<script src="https://inapp.telega.io/sdk/v1/sdk.js"></script>
+<script>
+  const ads = window.TelegaIn.AdsController.create_miniapp({
+    token: '32790e18-1463-49a8-bef8-ff8d8859aec0' });
+</script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -486,13 +439,17 @@ function loadTelegramUserData() {
     
     
 
-function logToScreen(message) {
-    console.log(message); // tetap log ke console browser kalau bisa
-    const debugDiv = document.getElementById('debugConsole');
-    if (debugDiv) {
-        debugDiv.innerHTML += message + '<br>';
-        debugDiv.scrollTop = debugDiv.scrollHeight; // auto-scroll ke bawah
+function showAds() {
+    if (!ads) {
+        showToast("Iklan belum siap. Coba lagi sebentar."); 
+        return;
     }
+    ads.ad_show({
+        adBlockUuid: "b298d655-dc25-483d-9042-8221e34cabe0"
+    }).catch(error => {
+        console.log("Gagal menampilkan iklan:", error);
+        showToast("Gagal menampilkan iklan. Pastikan dibuka di Telegram.");
+    });
 }
 
     
