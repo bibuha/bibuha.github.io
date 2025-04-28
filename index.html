@@ -351,8 +351,61 @@ h1 {
 <!-- Container untuk Tads Ads (tetap bisa digunakan widgetId 377) -->
 
   <!--end tads -->
+<!-- Tombol muncul dulu -->
 <button onclick="showAds()">Tampilkan Iklan</button>
 <div id="ad-container"></div>
+    
+    <div id="debugConsole" style="background:#111; color:#0f0; font-size:12px; padding:10px; margin:10px; max-height:150px; overflow:auto; border-radius:10px;">
+  <strong>Debug Log:</strong><br>
+</div>
+
+<!-- Baru setelah itu script kamu -->
+<script src="https://inapp.telega.io/sdk/v1/sdk.js"></script>
+<script>
+let ads = null;
+
+function initializeAds() {
+    ads = window.TelegaIn.AdsController.create_miniapp({
+        token: '32790e18-1463-49a8-bef8-ff8d8859aec0'
+    });
+}
+
+function showAds() {
+    if (!ads) {
+        logToScreen("Iklan belum siap.");
+        showToast("Iklan belum siap. Coba lagi sebentar."); 
+        return;
+    }
+    logToScreen("Menampilkan iklan...");
+    ads.ad_show({
+      container: '#ad-container',
+      adBlockUuid: 'b298d655-dc25-483d-9042-8221e34cabe0'
+    });
+}
+
+function logToScreen(message) {
+    console.log(message);
+    const debugDiv = document.getElementById('debugConsole');
+    if (debugDiv) {
+        debugDiv.innerHTML += message + '<br>';
+        debugDiv.scrollTop = debugDiv.scrollHeight;
+    }
+}
+
+// Tangkap semua error global
+window.onerror = function(message, source, lineno, colno, error) {
+    const errorMessage = `ERROR: ${message} at ${source}:${lineno}:${colno}`;
+    logToScreen(errorMessage);
+    return false;
+};
+
+// Inisialisasi ads setelah WebApp siap
+document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(initializeAds, 1000); 
+});
+</script>
+
+
 
     
 <!-- Navbar di bawah -->
@@ -380,34 +433,24 @@ h1 {
     <p id="statusMessage"></p>
  <!-- Bidvertiser2099524 -->
 
-    <script src="https://inapp.telega.io/sdk/v1/sdk.js"></script>
-<script>
-  const ads = window.TelegaIn.AdsController.create_miniapp({
-    token: '32790e18-1463-49a8-bef8-ff8d8859aec0'
-  });
 
-  function showAds() {
-    ads.ad_show({
-      container: '#ad-container',
-      adBlockUuid: 'b298d655-dc25-483d-9042-8221e34cabe0'
-    });
-  }
-</script>
-     <script>
-    document.addEventListener("DOMContentLoaded", function () {
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
     loadTelegramUserData();
     
     cekResetHarian();
     updateTampilanTonton();
-    updateTampilanSaldo(); // Tambahkan fungsi ini
+    updateTampilanSaldo();
     cekLimitTonton();
     tampilkanWelcomePopup();
-        kirimDataKeChannel();      
-        updateTampilanTontonBonus();
-        updateButton();
-  updateBalance();
+    kirimDataKeChannel();      
+    updateTampilanTontonBonus();
+    updateButton();
+    updateBalance();
 
-    // Tambahkan event listener untuk tombol iklan
+ 
+ // Tambahkan event listener untuk tombol iklan
     document.getElementById('adButton').addEventListener('click', tontonIklan);
 });
 
@@ -440,8 +483,17 @@ function loadTelegramUserData() {
         document.getElementById("userInfo").innerHTML = "Telegram WebApp tidak tersedia.";
     }
 }
+    
+    
 
-
+function logToScreen(message) {
+    console.log(message); // tetap log ke console browser kalau bisa
+    const debugDiv = document.getElementById('debugConsole');
+    if (debugDiv) {
+        debugDiv.innerHTML += message + '<br>';
+        debugDiv.scrollTop = debugDiv.scrollHeight; // auto-scroll ke bawah
+    }
+}
 
     
     function showToast(message, duration = 3000) {
