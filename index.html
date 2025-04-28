@@ -15,84 +15,108 @@
     
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(to right, #4e54c8, #8f94fb);
-            color: #fff;
-            text-align: center;
-            padding: 20px;
-            margin: 0;
-        }
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to right, #4e54c8, #8f94fb);
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
 
-        h1 {
-            font-size: 2em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
+.main-container {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(100vh - 120px); /* Sesuaikan dengan kebutuhan */
+    padding-bottom: 20px;
+}
 
-        .button-container {
-            margin: 20px 0;
-        }
+h1 {
+    font-size: clamp(1.5em, 5vw, 2em); /* Responsif */
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    position: sticky;
+    top: 0;
+    background: linear-gradient(to right, #4e54c8, #8f94fb);
+    padding: 10px 0;
+    z-index: 10;
+}
 
-        .ad-button {
-            padding: 15px 30px;
-            font-size: 18px;
-            color: white;
-            background: linear-gradient(45deg, #ff416c, #ff4b2b);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: block;
-            margin: 10px auto;
-        }
+.button-container {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
 
-        .ad-button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.5);
-        }
+.ad-button {
+    padding: 15px 30px;
+    font-size: clamp(14px, 4vw, 18px); /* Responsif */
+    color: white;
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin: 0 auto;
+    width: 90%;
+    max-width: 300px;
+}
 
-        #bannerAd {
-            margin: 20px auto;
-            width: 100%;
-            height: 100px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-       /* Navbar styling */
+.footer {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(to right, #4e54c8, #8f94fb);
+    padding: 10px 0;
+    z-index: 10;
+}
+       
 /* Navbar bawah */
+/* Navbar Bawah */
 .bottom-navbar {
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 100%;
+    right: 0;
     display: flex;
     justify-content: space-around;
-    align-items: center;
-    padding: 10px 0;
-    background: transparent; /* Tidak ada background hitam */
-    box-shadow: 0 -1px 5px rgba(0,0,0,0.1); /* Opsional: bayangan tipis */
+    padding: 10px 5px;
+    background: linear-gradient(to right, #4e54c8, #8f94fb);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
     z-index: 1000;
 }
 
-.ad-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s;
+.bottom-navbar .ad-button {
+    padding: 8px 12px;
+    font-size: 12px;
+    margin: 0 3px;
+    flex: 1;
+    max-width: 48%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.ad-button:hover {
-    background-color: #45a049;
+/* Tombol Utama */
+.button-container {
+    margin: 15px 0;
+    padding-bottom: 70px; /* Ruang untuk navbar bawah */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 400px) {
+    .bottom-navbar .ad-button {
+        font-size: 11px;
+        padding: 6px 8px;
+    }
+    
+    #info, .bonus-button {
+        font-size: 14px;
+    }
 }
 
 /* Form Styling */
@@ -538,7 +562,7 @@ const links = [
 
   // Load click dan saldo dari localStorage
   if (localStorage.getItem('richbot_v5_clicks')) {
-    clickCount = parseInt(localStorage.getItem('richbot_v5_clicks'));
+    clickCount = parseInt(localStorage.getItem('richbot_v5_clicks')) || 0;
   }
 
   if (!localStorage.getItem('richbot_v5_saldo')) {
@@ -609,12 +633,27 @@ const links = [
   // Reset otomatis setiap jam 00:00
   setInterval(() => {
     const now = new Date();
+    console.log(`Cek waktu: ${now.getHours()}:${now.getMinutes()}`);  // Menampilkan jam dan menit setiap kali interval
+
     if (now.getHours() === 0 && now.getMinutes() === 0) {
-      localStorage.removeItem('richbot_v5_clicks');
-      // saldo tetap tidak reset
-      location.reload();
+        console.log("Reset harian ad1 dilakukan!");  // Menunjukkan kalau waktunya sudah 00:00
+
+        // Reset klik dan status waiting
+        localStorage.setItem('richbot_v5_clicks', 0);
+        clickCount = 0;
+        isWaiting = false;
+
+        console.log("Klik dihitung ulang ad1: ", clickCount);  // Cek nilai clickCount setelah reset
+
+        clearInterval(timerInterval);
+        updateButton();
+        console.log(" ad1 Tombol diupdate, akan reload halaman");
+
+        location.reload(); // Reload halaman untuk memperbaharui semuanya
+    } else {
+        console.log("ad 1 Belum jam reset, cek lagi dalam 60 detik.");
     }
-  }, 60000); // cek tiap menit
+}, 60000);
     
 function tontonIklan() {
     const adButton = document.getElementById("adButton");
