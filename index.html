@@ -13,6 +13,7 @@
     <script data-onclicka-banner="6063893" async src="https://js.onclckmn.com/banner-admanager/oncbanner.m.js" data-onclicka-banner-ar="c"></script>
     <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="307071"></script>
     
+    
     <style>
         body {
     font-family: 'Arial', sans-serif;
@@ -350,7 +351,8 @@ h1 {
 <!-- Container untuk Tads Ads (tetap bisa digunakan widgetId 377) -->
 
   <!--end tads -->
-
+<button onclick="showAds()">Tampilkan Iklan</button>
+<div id="ad-container"></div>
 
     
 <!-- Navbar di bawah -->
@@ -378,6 +380,19 @@ h1 {
     <p id="statusMessage"></p>
  <!-- Bidvertiser2099524 -->
 
+    <script src="https://inapp.telega.io/sdk/v1/sdk.js"></script>
+<script>
+  const ads = window.TelegaIn.AdsController.create_miniapp({
+    token: '32790e18-1463-49a8-bef8-ff8d8859aec0'
+  });
+
+  function showAds() {
+    ads.ad_show({
+      container: '#ad-container',
+      adBlockUuid: 'b298d655-dc25-483d-9042-8221e34cabe0'
+    });
+  }
+</script>
      <script>
     document.addEventListener("DOMContentLoaded", function () {
     loadTelegramUserData();
