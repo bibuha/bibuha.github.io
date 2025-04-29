@@ -306,6 +306,9 @@ h1 {
       color: #333;
     }
     
+
+
+    
     </style>
 </head>
 
@@ -383,10 +386,7 @@ h1 {
  <!-- Bidvertiser2099524 -->
 
 <script src="https://inapp.telega.io/sdk/v1/sdk.js"></script>
-<script>
-  const ads = window.TelegaIn.AdsController.create_miniapp({
-    token: '32790e18-1463-49a8-bef8-ff8d8859aec0' });
-</script>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -407,6 +407,8 @@ document.addEventListener("DOMContentLoaded", function () {
  // Tambahkan event listener untuk tombol iklan
     document.getElementById('adButton').addEventListener('click', tontonIklan);
 });
+    
+    
 
 // Ambil data pengguna dari Telegram
 function loadTelegramUserData() {
@@ -438,6 +440,10 @@ function loadTelegramUserData() {
     }
 }
     
+    const ads = window.TelegaIn.AdsController.create_miniapp({
+    token: '32790e18-1463-49a8-bef8-ff8d8859aec0' });
+
+    
     
 
 function showAds() {
@@ -449,10 +455,12 @@ function showAds() {
         adBlockUuid: "b298d655-dc25-483d-9042-8221e34cabe0"
     }).catch(error => {
         console.log("Gagal menampilkan iklan:", error);
-        showToast("Gagal menampilkan iklan. Pastikan dibuka di Telegram.");
+        showToast("Gagal menampilkan iklan.");
     });
 }
-
+ads.ad_show({
+  adBlockUuid: "916a6aa7-5bff-4c19-9704-143cc633551b"
+});
     
     function showToast(message, duration = 3000) {
     let soundEffect = new Audio("warning.mp3"); // Muat file suara
