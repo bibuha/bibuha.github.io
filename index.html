@@ -401,6 +401,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateTampilanTontonBonus();
     updateButton();
     updateBalance();
+    dailyAd1Reset();
 
  
  // Tambahkan event listener untuk tombol iklan
@@ -655,29 +656,27 @@ const links = [
   }
 
   // Reset otomatis setiap jam 00:00
-  setInterval(() => {
-    const now = new Date();
-    console.log(`Cek waktu: ${now.getHours()}:${now.getMinutes()}`);  // Menampilkan jam dan menit setiap kali interval
+  function dailyAd1Reset() {
+  const lastReset = localStorage.getItem('richbot_v5_lastReset');
+  const today = new Date().toISOString().split('T')[0]; // Contoh format: "2025-04-29"
 
-    if (now.getHours() === 0 && now.getMinutes() === 0) {
-        console.log("Reset harian ad1 dilakukan!");  // Menunjukkan kalau waktunya sudah 00:00
+  if (lastReset !== today) {
+    console.log("Melakukan reset harian otomatis Ad1...");
 
-        // Reset klik dan status waiting
-        localStorage.setItem('richbot_v5_clicks', 0);
-        clickCount = 0;
-        isWaiting = false;
+    // Reset data harian
+    localStorage.setItem('richbot_v5_clicks', 0);
+    clickCount = 0;
+    isWaiting = false;
 
-        console.log("Klik dihitung ulang ad1: ", clickCount);  // Cek nilai clickCount setelah reset
+    localStorage.setItem('richbot_v5_lastReset', today); // Simpan tanggal reset baru
+    updateButton();
+    updateTampilanTonton?.(); // Jika fungsi ini ada
 
-        clearInterval(timerInterval);
-        updateButton();
-        console.log(" ad1 Tombol diupdate, akan reload halaman");
-
-        location.reload(); // Reload halaman untuk memperbaharui semuanya
-    } else {
-        console.log("ad 1 Belum jam reset, cek lagi dalam 60 detik.");
-    }
-}, 60000);
+    console.log("Reset berhasil: klik direset ke 0");
+  } else {
+    console.log("Hari ini sudah reset Ad1, tidak perlu reset ulang.");
+  }
+}
     
 function tontonIklan() {
     const adButton = document.getElementById("adButton");
