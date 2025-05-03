@@ -471,13 +471,16 @@ document.addEventListener("DOMContentLoaded", function () {
     kirimDataKeChannel();      
     updateTampilanTontonBonus();
     resetBonusHarianJikaPerlu();
-    updateButton();
-    updateBalance();
+    
     dailyAd1Reset();
+      // Baru load ulang clickCount setelah reset
+    clickCount = parseInt(localStorage.getItem('richbot_v5_clicks')) || 0;
+updateButton();
+    updateBalance();
     resetKlikHarian();
 updateTelegaAdStatus();
 
- 
+   
  // Tambahkan event listener untuk tombol iklan
     document.getElementById('adButton').addEventListener('click', tontonIklan);
 });
@@ -820,26 +823,19 @@ document.getElementById('redirectButton').addEventListener('click', () => {
 
   // Reset otomatis setiap jam 00:00
   function dailyAd1Reset() {
-  const lastReset = localStorage.getItem('richbot_v5_lastReset');
-  const today = new Date().toISOString().split('T')[0]; // Contoh format: "2025-04-29"
+     const lastReset = localStorage.getItem('richbot_v5_lastReset');
+     const today = new Date().toISOString().split('T')[0];
 
-  if (lastReset !== today) {
-    console.log("Melakukan reset harian otomatis Ad1...");
-
-    // Reset data harian
-    localStorage.setItem('richbot_v5_clicks', 0);
-    clickCount = 0;
-    isWaiting = false;
-
-    localStorage.setItem('richbot_v5_lastReset', today); // Simpan tanggal reset baru
-    updateButton();
-    updateTampilanTonton?.(); // Jika fungsi ini ada
-
-    console.log("Reset berhasil: klik direset ke 0");
-  } else {
-    console.log("Hari ini sudah reset Ad1, tidak perlu reset ulang.");
-  }
-}
+     if (lastReset !== today) {
+       console.log("Melakukan reset harian...");
+       localStorage.setItem('richbot_v5_clicks', 0);
+       localStorage.setItem('richbot_v5_lastReset', today);
+       clickCount = 0; // Reset variabel di memori juga
+       updateButton(); // Update tampilan
+     }
+   }
+    // Jalankan di console browser
+// ==================== TESTING SYSTEM ====================
     
 function tontonIklan() {
     const adButton = document.getElementById("adButton");
