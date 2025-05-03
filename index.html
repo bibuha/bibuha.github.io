@@ -406,7 +406,6 @@ h1 {
   </div>
 </div>
     
-
     <!-- Tombol Iklan -->
     <div class="button-container">
         <button class="ad-button" id="adButton">🎥 Tonton Iklan 5 🎥</button>
@@ -414,6 +413,7 @@ h1 {
     
 <center>
      <div id="info">💎 Ad1: 0/5</div>
+    <button onclick="paksaReset()">Reset</button>
   <button id="redirectButton">Ad1 ==>©5</button> 
 </center>
     
@@ -462,23 +462,19 @@ h1 {
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     loadTelegramUserData();
-    
+    tampilkanWelcomePopup();
     cekResetHarian();
     updateTampilanTonton();
     updateTampilanSaldo();
-    cekLimitTonton();
-    tampilkanWelcomePopup();
+    cekLimitTonton();   
     kirimDataKeChannel();      
     updateTampilanTontonBonus();
-    resetBonusHarianJikaPerlu();
-    
+    resetBonusHarianJikaPerlu();    
     dailyAd1Reset();
-      // Baru load ulang clickCount setelah reset
-    clickCount = parseInt(localStorage.getItem('richbot_v5_clicks')) || 0;
-updateButton();
+    updateButton();
     updateBalance();
     resetKlikHarian();
-updateTelegaAdStatus();
+    updateTelegaAdStatus();
 
    
  // Tambahkan event listener untuk tombol iklan
@@ -823,17 +819,48 @@ document.getElementById('redirectButton').addEventListener('click', () => {
 
   // Reset otomatis setiap jam 00:00
   function dailyAd1Reset() {
-     const lastReset = localStorage.getItem('richbot_v5_lastReset');
-     const today = new Date().toISOString().split('T')[0];
+  const lastReset = localStorage.getItem('richbot_v5_lastReset');
+  const today = new Date().toISOString().split('T')[0]; // Mendapatkan tanggal hari ini dalam format YYYY-MM-DD
+  const currentTime = new Date();
+  const currentHour = currentTime.getHours();
+  const currentMinutes = currentTime.getMinutes();
 
-     if (lastReset !== today) {
-       console.log("Melakukan reset harian...");
-       localStorage.setItem('richbot_v5_clicks', 0);
-       localStorage.setItem('richbot_v5_lastReset', today);
-       clickCount = 0; // Reset variabel di memori juga
-       updateButton(); // Update tampilan
-     }
-   }
+  console.log("Tanggal terakhir reset: ", lastReset);
+  console.log("Tanggal hari ini: ", today);
+  console.log("Jam saat ini: ", currentHour, "Menit:", currentMinutes);
+
+  // Jika belum reset hari ini dan waktu sudah melewati 00:00, lakukan reset
+  if (lastReset !== today && currentHour === 0 && currentMinutes === 0) {
+    console.log("Melakukan reset harian...");
+    localStorage.setItem('richbot_v5_clicks', 0); // Reset jumlah klik
+    localStorage.setItem('richbot_v5_lastReset', today); // Set tanggal reset ke hari ini
+    console.log("Klik reset ke 0 dan tanggal reset diset ke:", today);
+  } else {
+    console.log("Tidak perlu reset, sudah ada reset untuk hari ini.");
+  }
+
+  // Selalu baca ulang clickCount dari localStorage setelah reset (baik reset terjadi atau tidak)
+  clickCount = parseInt(localStorage.getItem('richbot_v5_clicks')) || 0;
+  console.log("Jumlah klik saat ini:", clickCount);
+
+  // Update tampilan tombol
+  updateButton();
+}
+
+// Menjalankan reset ini setiap 10 detik agar memastikan reset berjalan saat 00:00
+setInterval(dailyAd1Reset, 10000);
+    // paksa reset ad1
+    function paksaReset() {
+  const today = new Date().toISOString().split('T')[0];
+  console.log("== RESET MANUAL ==");
+  localStorage.setItem('richbot_v5_clicks', 0);
+  localStorage.setItem('richbot_v5_lastReset', today);
+  clickCount = 0;
+  updateButton();
+  console.log("Klik berhasil di-reset ke 0");
+}
+    
+    
     // Jalankan di console browser
 // ==================== TESTING SYSTEM ====================
     
@@ -1049,7 +1076,7 @@ kirimKeTelegram("Hello from JavaScript!");
   });
 
   // Format pesan ke Telegram
-  const pesan = `✨RICHBOT V3✨:
+  const pesan = `✨RICHBOT V4✨:
 
 Nama: ${nama}
 Username: @${username}
