@@ -6,11 +6,13 @@
     <title>Rich Bot v4.0 - Telegram & RichAds</title>
 
     <!-- Telegram WebApp & RichAds SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js?"></script>
     
     <script src="https://js.onclckvd.com/in-stream-ad-admanager/tma.js"></script>
     <script src="https://w.tads.me/widget.js"></script>       
     <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="306361"></script>
+  <script src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+
     
     <style>
         body {
@@ -391,7 +393,7 @@ h1 {
 <div id="Inpage-ad"></div>
     <!-- Pendapatan dan Jumlah Tontonan -->
     <p><strong>🪙 point :</strong>₵ <span id="balance">0</span></p>
-    <p><strong>🎯 limit :</strong> <span id="views">0</span>/50</p>
+    <p><strong>🎯 limit :</strong> <span id="views">0</span>/70</p>
     
     <!-- Notifikasi -->
     <div id="notification"></div>
@@ -412,8 +414,7 @@ h1 {
     </div>
     
 <center>
-     <div id="info">💎 Ad1: 0/5</div>
-    <button onclick="paksaReset()">Reset</button>
+     <div id="info">💎 Ad1: 0/5</div>   
   <button id="redirectButton">Ad1 ==>©5</button> 
 </center>
     
@@ -512,6 +513,7 @@ function loadTelegramUserData() {
         document.getElementById("userInfo").innerHTML = "Telegram WebApp tidak tersedia.";
     }
 }
+    
     
     	// telega Ad3
     const ads = window.TelegaIn.AdsController.create_miniapp({
@@ -734,11 +736,6 @@ function watchBonusAd() {
 
 // Ad1
 const links = [
-  "https://www.profitableratecpm.com/z7m6g94rhv?key=2816c0ef36571df491f429fc7cbdcfac", 
-  "https://www.profitableratecpm.com/fu5xyp7gse?key=08b4590688a9007d55fe84b6a799fb70",
-  "https://www.profitableratecpm.com/ahubukix4?key=40512de93d00d9917f586da24ba06ac6",
-  "https://www.profitableratecpm.com/xeada9vnbv?key=5c1d190d058172f18321c2db0091afca",
-  "https://www.profitableratecpm.com/gak90i3zhj?key=08b0cc497c693986e9290bfabfbdf6c6"
 ];
 
 let clickCount = 0;
@@ -849,27 +846,27 @@ document.getElementById('redirectButton').addEventListener('click', () => {
 
 // Menjalankan reset ini setiap 10 detik agar memastikan reset berjalan saat 00:00
 setInterval(dailyAd1Reset, 10000);
-    // paksa reset ad1
-    function paksaReset() {
-  const today = new Date().toISOString().split('T')[0];
-  console.log("== RESET MANUAL ==");
-  localStorage.setItem('richbot_v5_clicks', 0);
-  localStorage.setItem('richbot_v5_lastReset', today);
-  clickCount = 0;
-  updateButton();
-  console.log("Klik berhasil di-reset ke 0");
-}
+   
     
     
-    // Jalankan di console browser
+    // tombol utama
 // ==================== TESTING SYSTEM ====================
     
+let giliranIklan = parseInt(localStorage.getItem("giliranIklan") || "0");
+const customUrls = [
+  "https://www.profitableratecpm.com/z7m6g94rhv?key=2816c0ef36571df491f429fc7cbdcfac", 
+  "https://www.profitableratecpm.com/fu5xyp7gse?key=08b4590688a9007d55fe84b6a799fb70",
+  "https://www.profitableratecpm.com/ahubukix4?key=40512de93d00d9917f586da24ba06ac6",
+  "https://www.profitableratecpm.com/xeada9vnbv?key=5c1d190d058172f18321c2db0091afca",
+  "https://www.profitableratecpm.com/gak90i3zhj?key=08b0cc497c693986e9290bfabfbdf6c6"
+];
+
 function tontonIklan() {
     const adButton = document.getElementById("adButton");
     const balanceElement = document.getElementById("balance");
     let tontonJumlah = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
 
-    if (tontonJumlah >= 50) {
+    if (tontonJumlah >= 70) {
         showNotification("⚠️ Limit harian 50 tontonan telah tercapai.");
         adButton.disabled = true;
         adButton.innerText = "Limit Harian Tercapai";
@@ -879,42 +876,86 @@ function tontonIklan() {
     adButton.disabled = true;
     adButton.innerText = "⏳ Menyiapkan iklan...";
 
-    window.initCdTma?.({ id: "6063892" })
-        .then(showAd => {
-            showAd();
-            console.log("Iklan ditampilkan.");
+    // Cek apakah ini klik ke-10, 20, 30, 40, atau 50
+    if ((tontonJumlah + 1) % 10 === 0) {
+        const index = Math.floor(tontonJumlah / 10); // index 0–4
+        if (customUrls[index]) {
+            window.open(customUrls[index], "_blank"); // buka URL iklan khusus
+        }
+        mulaiTimerIklan(adButton, balanceElement, tontonJumlah);
+    } else {
+        // Monetag dan TGAds bergantian
+        if (giliranIklan % 2 === 0) {
+            // Monetag
+            window.initCdTma?.({ id: "6063892" })
+                .then(showAd => {
+                    showAd();
+                    mulaiTimerIklan(adButton, balanceElement, tontonJumlah);
+                })
+                .catch(e => {
+                    console.log("❌ Monetag gagal:", e);
+                    showNotification("❌ Gagal memuat iklan Monetag.");
+                    resetTombol();
+                });
+        } else {
+            // TGAds
+            const tgAds = new TGAdsWidget({
+                wid: 'e7e08ffb-bedd-4999-a04e-0ce9dd2c590c',
+                adFormat: 'interstitial',
+                debug: false
+            });
 
-            // Mulai hitung mundur 21 detik setelah iklan muncul
-            let waktu = 21;
-            adButton.innerText = `⏳ Tunggu ${waktu} detik...`;
+            const adReceivedListener = (adList) => {
+    tgAds.displayAd(adList);
+    mulaiTimerIklan(adButton, balanceElement, tontonJumlah);
+    tgAds.off('adReceived', adReceivedListener); // Unsubscribe setelah tampil
+};
 
-            let timer = setInterval(() => {
-                waktu--;
-                adButton.innerText = `⏳ Tunggu ${waktu} detik...`;
+tgAds.on('adReceived', adReceivedListener);
 
-                if (waktu <= 0) {
-                    clearInterval(timer);
+tgAds.on('adError', (e) => {
+    console.log("❌ TGAds gagal:", e);
+    showNotification("❌ Gagal memuat iklan TGAds.");
+    resetTombol();
+});
 
-                    let saldo = parseInt(localStorage.getItem("richbot_v5_saldo") || "0");
-                    saldo += 5;
-                    localStorage.setItem("richbot_v5_saldo", saldo);
-                    balanceElement.innerText = saldo;
+            tgAds.init();
+            tgAds.requestAd('interstitial');
+        }
+        giliranIklan++;
+        localStorage.setItem("giliranIklan", giliranIklan);
+    }
+}
 
-                    tontonJumlah += 1;
-                    localStorage.setItem("richbot_v5_jumlahTonton", tontonJumlah);
-                    updateTampilanTonton();
-                    showNotification("✅ Iklan selesai, saldo bertambah Rp.5!");
+function mulaiTimerIklan(adButton, balanceElement, tontonJumlah) {
+    let waktu = 21;
+    adButton.innerText = `⏳ Tunggu ${waktu} detik...`;
 
-                    cekLimitTonton();
-                }
-            }, 1000);
-        })
-        .catch(e => {
-            console.log("Error initializing ad:", e);
-            showNotification("❌ Gagal memuat iklan, silakan coba lagi.");
-            adButton.disabled = false;
-            adButton.innerText = "🎥 Tonton Iklan 5 🎥";
-        });
+    let timer = setInterval(() => {
+        waktu--;
+        adButton.innerText = `⏳ Tunggu ${waktu} detik...`;
+
+        if (waktu <= 0) {
+            clearInterval(timer);
+
+            let saldo = parseInt(localStorage.getItem("richbot_v5_saldo") || "0");
+            saldo += 5;
+            localStorage.setItem("richbot_v5_saldo", saldo);
+            balanceElement.innerText = saldo;
+
+            tontonJumlah += 1;
+            localStorage.setItem("richbot_v5_jumlahTonton", tontonJumlah);
+            updateTampilanTonton();
+            showNotification("✅ Iklan selesai, saldo bertambah Rp.5!");
+            cekLimitTonton();
+        }
+    }, 1000);
+}
+
+function resetTombol() {
+    const adButton = document.getElementById("adButton");
+    adButton.disabled = false;
+    adButton.innerText = "🎥 Tonton Iklan 5 🎥";
 }
 
 function updateTampilanTonton() {
@@ -931,7 +972,7 @@ function cekLimitTonton() {
     const adButton = document.getElementById("adButton");
     let jumlah = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
 
-    if (jumlah >= 50) {
+    if (jumlah >= 70) {
         adButton.disabled = true;
         adButton.innerText = "Limit Harian Tercapai";
     } else {
