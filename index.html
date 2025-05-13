@@ -990,6 +990,19 @@ function cekResetHarian() {
         localStorage.setItem("richbot_v5_resetTonton", today);
     }
 }
+    
+   // iklan push-like adexium
+    type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+        const tgAds = new TGAdsWidget({
+            wid: '0aabc78e-7479-407c-8a4a-55c4987a55e6', 
+            adFormat: 'push-like', //adFormat values available: push-like/interstitial
+            firstAdImpressionIntervalInSeconds: 5, // by default ad will appear in 20 seconds after opening mini apps
+            adImpressionIntervalInSeconds: 100, // by default ad period interval is 200 seconds
+            debug: false // you can pass this parameter to debug and get TEST ad every time you make request. Do not use on production ENV :)
+        });
+        tgAds.init(); // if you want to show AD in auto mode if not - do not call this method
+    });
 
 function showNotification(pesan) {
     const notif = document.getElementById("notification");
