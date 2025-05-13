@@ -331,31 +331,7 @@ h1 {
   cursor: not-allowed;
 }
       /* AD1 */
-   #redirectButton {
-  width: 100%;
-  padding: 12px;
-  font-size: 18px;
-  font-weight: bold;
-  background-color: black;
-  color: yellow;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s;
-  margin-top: 1mm; /* jarak dari #info */
-}
-
-#redirectButton:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-#info {
-  font-family: Arial, sans-serif;
-  font-size: 15px;
-  margin-bottom: 0; /* hapus margin bawah default */
-  color: yellow;
-}
+  
     
   /* AD3 */
 #telegaAdButton {
@@ -413,10 +389,7 @@ h1 {
         <button class="ad-button" id="adButton">🎥 Tonton Iklan 5 🎥</button>
     </div>
     
-<center>
-     <div id="info">💎 Ad1: 0/5</div>   
-  <button id="redirectButton">Ad1 ==>©5</button> 
-</center>
+
     
     <p><strong>🎁 ad2 :</strong> <span id="tontonbonus">0</span></p>
     <!-- Tombol Reward Tambahan/tads -->
@@ -470,10 +443,7 @@ document.addEventListener("DOMContentLoaded", function () {
     cekLimitTonton();   
     kirimDataKeChannel();      
     updateTampilanTontonBonus();
-    resetBonusHarianJikaPerlu();    
-    dailyAd1Reset();
-    updateButton();
-    updateBalance();
+    resetBonusHarianJikaPerlu();       
     resetKlikHarian();
     updateTelegaAdStatus();
 
@@ -513,6 +483,35 @@ function loadTelegramUserData() {
         document.getElementById("userInfo").innerHTML = "Telegram WebApp tidak tersedia.";
     }
 }
+    
+    function tampilkanWelcomePopup() {
+    const popup = document.getElementById("welcomePopup");
+    popup.style.display = "block";
+}
+
+function closePopup() {
+    const popup = document.getElementById("welcomePopup");
+    popup.style.display = "none";
+}
+    
+    function showToast(message, duration = 3000) {
+    let soundEffect = new Audio("warning.mp3"); // Muat file suara
+    soundEffect.play(); // Putar suara saat roulette dibuka
+
+    let toast = document.getElementById("toast");
+    toast.innerText = message;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.add("hide");
+        setTimeout(() => {
+            toast.classList.remove("show", "hide");
+        }, 500);
+    }, duration);
+}
+    
+    
+    
     
     
     	// telega Ad3
@@ -594,29 +593,14 @@ function showAds() {
         localStorage.setItem("telega_lastReset", today);
     }
 }
-
-    
+   
 ads.ad_show({
   adBlockUuid: "916a6aa7-5bff-4c19-9704-143cc633551b"
 });
     // telega end
     
     
-    function showToast(message, duration = 3000) {
-    let soundEffect = new Audio("warning.mp3"); // Muat file suara
-    soundEffect.play(); // Putar suara saat roulette dibuka
-
-    let toast = document.getElementById("toast");
-    toast.innerText = message;
-    toast.classList.add("show");
-
-    setTimeout(() => {
-        toast.classList.add("hide");
-        setTimeout(() => {
-            toast.classList.remove("show", "hide");
-        }, 500);
-    }, duration);
-}
+    
     
     
 	// tads ads Ad2
@@ -735,118 +719,9 @@ function watchBonusAd() {
 // end tads ads
 
 // Ad1
-const links = [
-];
 
-let clickCount = 0;
-const maxClicks = 10; // Ubah jadi 10
-let isWaiting = false;
-let timerInterval;
-let waitSeconds = 60;
 
-// Load click dan saldo dari localStorage
-if (localStorage.getItem('richbot_v5_clicks')) {
-  clickCount = parseInt(localStorage.getItem('richbot_v5_clicks')) || 0;
-}
-
-if (!localStorage.getItem('richbot_v5_saldo')) {
-  localStorage.setItem('richbot_v5_saldo', 0);
-}
-
-updateButton();
-updateBalance();
-
-document.getElementById('redirectButton').addEventListener('click', () => {
-  if (clickCount >= maxClicks || isWaiting) return;
-
-  // Ganti logika rotasi jadi % panjang array links
-  const linkToOpen = links[clickCount % links.length];
-  window.open(linkToOpen, '_blank');
-
-  clickCount++;
-  localStorage.setItem('richbot_v5_clicks', clickCount);
-
-  // Tambahkan 5 rupiah ke saldo
-  let saldo = parseInt(localStorage.getItem('richbot_v5_saldo')) || 0;
-  saldo += 5;
-  localStorage.setItem('richbot_v5_saldo', saldo);
-  updateBalance();
-
-  updateButton();
-  startCooldown();
-});
-
-  function startCooldown() {
-    isWaiting = true;
-    let remaining = waitSeconds;
-    const button = document.getElementById('redirectButton');
-    button.disabled = true;
-    button.textContent = `Tunggu ${remaining}s`;
-
-    timerInterval = setInterval(() => {
-      remaining--;
-      button.textContent = `Tunggu ${remaining}s`;
-
-      if (remaining <= 0) {
-        clearInterval(timerInterval);
-        isWaiting = false;
-        updateButton();
-      }
-    }, 1000);
-  }
-
-  function updateButton() {
-    const button = document.getElementById('redirectButton');
-    const info = document.getElementById('info');
-    info.textContent = `💎Ad1: ${clickCount}/${maxClicks}`;
-
-    if (clickCount >= maxClicks) {
-      button.disabled = true;
-      button.textContent = "Limit Harian Tercapai";
-    } else if (!isWaiting) {
-      button.disabled = false;
-      button.textContent = "💎Ad1 ==>©5";
-    }
-  }
-
-  function updateBalance() {
-    const balance = localStorage.getItem('richbot_v5_saldo') || 0;
-    document.getElementById('balance').textContent = balance;
-  }
-
-  // Reset otomatis setiap jam 00:00
-  function dailyAd1Reset() {
-  const lastReset = localStorage.getItem('richbot_v5_lastReset');
-  const today = new Date().toISOString().split('T')[0]; // Mendapatkan tanggal hari ini dalam format YYYY-MM-DD
-  const currentTime = new Date();
-  const currentHour = currentTime.getHours();
-  const currentMinutes = currentTime.getMinutes();
-
-  console.log("Tanggal terakhir reset: ", lastReset);
-  console.log("Tanggal hari ini: ", today);
-  console.log("Jam saat ini: ", currentHour, "Menit:", currentMinutes);
-
-  // Jika belum reset hari ini dan waktu sudah melewati 00:00, lakukan reset
-  if (lastReset !== today && currentHour === 0 && currentMinutes === 0) {
-    console.log("Melakukan reset harian...");
-    localStorage.setItem('richbot_v5_clicks', 0); // Reset jumlah klik
-    localStorage.setItem('richbot_v5_lastReset', today); // Set tanggal reset ke hari ini
-    console.log("Klik reset ke 0 dan tanggal reset diset ke:", today);
-  } else {
-    console.log("Tidak perlu reset, sudah ada reset untuk hari ini.");
-  }
-
-  // Selalu baca ulang clickCount dari localStorage setelah reset (baik reset terjadi atau tidak)
-  clickCount = parseInt(localStorage.getItem('richbot_v5_clicks')) || 0;
-  console.log("Jumlah klik saat ini:", clickCount);
-
-  // Update tampilan tombol
-  updateButton();
-}
-
-// Menjalankan reset ini setiap 10 detik agar memastikan reset berjalan saat 00:00
-setInterval(dailyAd1Reset, 10000);
-   
+     
     
     
     // tombol utama
@@ -898,29 +773,64 @@ function tontonIklan() {
                     resetTombol();
                 });
         } else {
-            // TGAds
-            const tgAds = new TGAdsWidget({
-                wid: 'e7e08ffb-bedd-4999-a04e-0ce9dd2c590c',
-                adFormat: 'interstitial',
-                debug: false
-            });
+            
+            // TGAds           
+// TGAds
+const tgAds = new TGAdsWidget({
+    wid: 'e7e08ffb-bedd-4999-a04e-0ce9dd2c590c',
+    adFormat: 'interstitial',
+    debug: false
+});
 
-            const adReceivedListener = (adList) => {
-    tgAds.displayAd(adList);
-    mulaiTimerIklan(adButton, balanceElement, tontonJumlah);
-    tgAds.off('adReceived', adReceivedListener); // Unsubscribe setelah tampil
+// TIMEOUT fallback jika iklan TGAds tidak diterima dalam 3 detik
+const iklanTimeout = setTimeout(() => {
+    console.warn("⚠️ Timeout TGAds. Menampilkan fallback ke Monetag.");
+    fallbackKeMonetag(); // fallback
+}, 3000);
+
+const adReceivedListener = (adList) => {
+    clearTimeout(iklanTimeout);
+    if (adList && adList.length > 0) {
+        tgAds.displayAd(adList);
+        mulaiTimerIklan(adButton, balanceElement, tontonJumlah);
+    } else {
+        console.warn("❌ TGAds kosong. Fallback ke Monetag.");
+        fallbackKeMonetag();
+    }
+    tgAds.off('adReceived', adReceivedListener);
 };
 
 tgAds.on('adReceived', adReceivedListener);
 
 tgAds.on('adError', (e) => {
-    console.log("❌ TGAds gagal:", e);
-    showNotification("❌ Gagal memuat iklan TGAds.");
-    resetTombol();
+    clearTimeout(iklanTimeout);
+    console.log("❌ TGAds error:", e);
+    showNotification("❌ TGAds gagal. Menampilkan fallback Monetag...");
+    fallbackKeMonetag();
 });
 
-            tgAds.init();
-            tgAds.requestAd('interstitial');
+// Inisialisasi TGAds
+tgAds.init();
+tgAds.requestAd('interstitial');
+
+// Fungsi fallback ke Monetag
+function fallbackKeMonetag() {
+    window.initCdTma?.({ id: "6063892" })
+        .then(showAd => {
+            showAd();
+            mulaiTimerIklan(adButton, balanceElement, tontonJumlah);
+        })
+        .catch(err => {
+            console.log("❌ Fallback Monetag gagal:", err);
+            showNotification("❌ Gagal memuat iklan cadangan.");
+            resetTombol();
+        });
+}
+
+tgAds.init();
+tgAds.requestAd('interstitial');
+
+
         }
         giliranIklan++;
         localStorage.setItem("giliranIklan", giliranIklan);
@@ -991,6 +901,10 @@ function cekResetHarian() {
     }
 }
     
+    
+    
+    
+    
    // iklan push-like adexium
     type="text/javascript">
     document.addEventListener('DOMContentLoaded', () => {
@@ -1004,6 +918,10 @@ function cekResetHarian() {
         tgAds.init(); // if you want to show AD in auto mode if not - do not call this method
     });
 
+    
+    
+    
+    
 function showNotification(pesan) {
     const notif = document.getElementById("notification");
     notif.innerText = pesan;
@@ -1023,16 +941,10 @@ function showNotification(pesan) {
     }, 3000);
 }
 
-function tampilkanWelcomePopup() {
-    const popup = document.getElementById("welcomePopup");
-    popup.style.display = "block";
-}
 
-function closePopup() {
-    const popup = document.getElementById("welcomePopup");
-    popup.style.display = "none";
-}
 
+    
+    
 // Fungsi untuk toggle form penarikan
 function toggleWithdrawForm() {
     const withdrawForm = document.getElementById('withdrawForm');
@@ -1067,6 +979,10 @@ function withdraw() {
     document.getElementById('noDANA').value = '';
     document.getElementById('amount').value = '';
 }
+    
+    
+    
+    
     
 // Fungsi untuk mendapatkan token dari Google Apps Script
 async function getToken() {
