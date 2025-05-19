@@ -100,6 +100,7 @@ h1 {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+   
 }
 
 /* Tombol Utama */
@@ -123,7 +124,7 @@ h1 {
 /* Form Styling */
 .form-container {
     display: none;
-    background-color: #f4f4f4;
+    background-color: black;
     padding: 20px;
     border-radius: 8px;
     margin: 20px;
@@ -151,7 +152,7 @@ h1 {
 /* Riwayat Penarikan Styling */
 .history-container {
     display: none;
-    background-color: #f4f4f4;
+    background-color: black;
     padding: 20px;
     border-radius: 8px;
     margin: 20px;
@@ -159,7 +160,7 @@ h1 {
 }
 
 #historyList {
-    background-color: #fff;
+    background-color: black;
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #ccc;
@@ -170,6 +171,33 @@ h1 {
 .show {
     display: block;
 }
+    
+    #historyList {
+    background-color: black;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    min-height: 50px;
+
+    max-height: 300px;      /* batas tinggi maksimal */
+    overflow-y: auto;       /* aktifkan scroll vertikal */
+    scrollbar-width: thin;  /* scroll tipis (Firefox) */
+}
+
+/* Untuk scrollbar di Chrome, Edge, dll */
+#historyList::-webkit-scrollbar {
+    width: 8px;
+}
+
+#historyList::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 4px;
+}
+
+#historyList::-webkit-scrollbar-track {
+    background-color: #222;
+}
+    
 /* end navbar */
     
         .notification {
@@ -257,28 +285,29 @@ h1 {
 
       
     
-    .toast {
+   .toast {
     visibility: hidden;
     min-width: 250px;
-    background: rgba(0, 170, 255, 1); /* Warna biru cyan dengan transparansi */
+    background: rgba(0, 170, 255, 1);
     color: white;
     text-align: center;
     border-radius: 8px;
     padding: 12px 20px;
-    position: fixed;
+    position: fixed; /* Tetap di tengah viewport */
     left: 50%;
-    top: 30px;
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
     z-index: 1000;
     font-size: 16px;
     font-weight: bold;
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.6);
     box-shadow: 0 0 10px rgba(0, 170, 255, 0.6), inset 0 0 8px rgba(0, 170, 255, 0.4);
-    transition: all 2s ease-in-out;
+    transition: opacity 0.4s ease;
     animation: pulse 4s infinite alternate;
+    opacity: 0;
 }
 
-/* Efek Glow Lebih Halus */
+/* Efek glow */
 @keyframes pulse {
     from {
         box-shadow: 0 0 8px rgba(0, 170, 255, 0.5);
@@ -288,17 +317,18 @@ h1 {
     }
 }
 
-/* Efek Muncul & Hilang */
+/* Saat muncul */
 .toast.show {
     visibility: visible;
-    top: 70px;
     opacity: 1;
 }
 
+/* Saat menghilang */
 .toast.hide {
-    top: 30px;
     opacity: 0;
 }
+    
+    
     /* AD2 */
     .bonus-button {
   display: inline-block;
@@ -313,6 +343,7 @@ h1 {
   transition: all 0.3s ease;
   text-align: center;
   user-select: none;
+        
 }
 
 .bonus-button:hover {
@@ -334,20 +365,8 @@ h1 {
   
     
   /* AD3 */
-#telegaAdButton {
-  padding: 10px 20px;
-  background-color: green;
-  color: black;
-  font-size: 18px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s;
-}
-#telegaAdButton:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
+#ad2-info {
+  margin-top: -70px; /* Geser ke atas, bisa ubah ke -20px sesuai kebutuhan */
 }
 
 
@@ -360,7 +379,7 @@ h1 {
 
    
        <!-- Banner Iklan onclicka -->
-  <div data-banner-id="6063893"></div>
+  
   
     
 
@@ -370,6 +389,8 @@ h1 {
     <!-- Pendapatan dan Jumlah Tontonan -->
     <p><strong>🪙 point :</strong>₵ <span id="balance">0</span></p>
     <p><strong>🎯 limit :</strong> <span id="views">0</span>/70</p>
+    
+    <div data-banner-id="6063893"></div>
     
     <!-- Notifikasi -->
     <div id="notification"></div>
@@ -390,20 +411,14 @@ h1 {
     </div>
     
 
-    
-    <p><strong>🎁 ad2 :</strong> <span id="tontonbonus">0</span></p>
-    <!-- Tombol Reward Tambahan/tads -->
+    <p id="ad2-info"><strong>🎁 ad2 :</strong> <span id="tontonbonus">0</span></p>    <!-- Tombol Reward Tambahan/tads -->
     <div id="tads-container-380"></div>
 <div class="bonus-button" id="bonusPlayButton" onclick="watchBonusAd()">
   <span id="bonusTimerDisplay">🎁 Ad2 ==>©5</span>
 </div>
 <!-- Container untuk Tads Ads (tetap bisa digunakan widgetId 377) -->
 
-  <!--end tads -->
-<!-- Tombol muncul dulu -->
-    <div id="telegaAdStatus">0/50</div>
-    <button id="telegaAdButton" onclick="showAds()">Ad3 ==>©5</button>
-
+ 
     
 <!-- Navbar di bawah -->
 <nav class="bottom-navbar">
@@ -417,7 +432,7 @@ h1 {
     <input type="text" id="namaDANA" placeholder="Nama DANA">
     <input type="text" id="noDANA" placeholder="Nomor DANA (10-13 digit)">
     <input type="number" id="amount" placeholder="Jumlah (Min Rp.1000, kelipatan Rp.1000)">
-    <button onclick="withdraw()">✅ Tarik Saldo</button>
+    <button id="btnTarik" onclick="withdraw()">✅ Tarik Saldo</button>
 </div>
 
 <!-- Riwayat Penarikan -->
@@ -431,10 +446,16 @@ h1 {
  <!-- Bidvertiser2099524 -->
 
 <script src="https://inapp.telega.io/sdk/v1/sdk.js"></script>
-
+<script>
+  const ads = window.TelegaIn.AdsController.create_miniapp({
+    token: '32790e18-1463-49a8-bef8-ff8d8859aec0',
+    debug: false // ← tambahkan di sini
+  });
+</script>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    
     loadTelegramUserData();
     tampilkanWelcomePopup();
     cekResetHarian();
@@ -444,8 +465,7 @@ document.addEventListener("DOMContentLoaded", function () {
     kirimDataKeChannel();      
     updateTampilanTontonBonus();
     resetBonusHarianJikaPerlu();       
-    resetKlikHarian();
-    updateTelegaAdStatus();
+     loadRiwayatPenarikan();
 
    
  // Tambahkan event listener untuk tombol iklan
@@ -494,12 +514,13 @@ function closePopup() {
     popup.style.display = "none";
 }
     
-    function showToast(message, duration = 3000) {
-    let soundEffect = new Audio("warning.mp3"); // Muat file suara
-    soundEffect.play(); // Putar suara saat roulette dibuka
+    function showToast(message, bgColor = "#00aaff", duration = 3000) {
+    let soundEffect = new Audio("warning.mp3");
+    soundEffect.play();
 
     let toast = document.getElementById("toast");
     toast.innerText = message;
+    toast.style.background = bgColor; // Tambahkan ini untuk atur warna
     toast.classList.add("show");
 
     setTimeout(() => {
@@ -515,85 +536,9 @@ function closePopup() {
     
     
     	// telega Ad3
-    const ads = window.TelegaIn.AdsController.create_miniapp({
-    token: '32790e18-1463-49a8-bef8-ff8d8859aec0'
-});
-
-function updateTelegaAdStatus() {
-    const jumlahKlik = parseInt(localStorage.getItem("telega_jumlahKlik") || "0");
-    document.getElementById("telegaAdStatus").innerText = `Ad3: ${jumlahKlik}/50`;
-
-    const btn = document.getElementById("telegaAdButton");
-    if (jumlahKlik >= 50) {
-        btn.disabled = true;
-        btn.innerText = "Limit Tercapai";
-    }
-}
-
-function startTelegaCooldown() {
-    const btn = document.getElementById("telegaAdButton");
-    let timeLeft = 60;
-    btn.disabled = true;
-    btn.innerText = `⏳ ${timeLeft}s`;
-
-    const interval = setInterval(() => {
-        timeLeft--;
-        btn.innerText = `⏳ ${timeLeft}s`;
-        if (timeLeft <= 0) {
-            clearInterval(interval);
-            updateTelegaAdStatus(); // cek apakah masih bisa aktif
-            if (parseInt(localStorage.getItem("telega_jumlahKlik") || "0") < 50) {
-                btn.disabled = false;
-                btn.innerText = "Tampilkan Iklan";
-            }
-        }
-    }, 1000);
-}
-
-// Tambahkan ke fungsi showAds():
-function showAds() {
-    if (!ads) {
-        showToast("Iklan belum siap. Coba lagi sebentar."); 
-        return;
-    }
-
-    const jumlahKlik = parseInt(localStorage.getItem("telega_jumlahKlik") || "0");
-    if (jumlahKlik >= 50) {
-        showToast("⚠️ Limit tontonan hari ini telah tercapai (50x).");
-        return;
-    }
-
-    ads.ad_show({
-        adBlockUuid: "b298d655-dc25-483d-9042-8221e34cabe0"
-    }).then(() => {
-        // Reward setelah tampil
-        let saldo = parseInt(localStorage.getItem("richbot_v5_saldo") || "0");
-        saldo += 5;
-        localStorage.setItem("richbot_v5_saldo", saldo);
-
-        // Tambah jumlah klik
-        localStorage.setItem("telega_jumlahKlik", jumlahKlik + 1);
-
-        updateTelegaAdStatus();
-        startTelegaCooldown();
-
-        document.getElementById("balance").innerText = "." + saldo;
-        showToast("✅ Iklan tampil, +5 point");
-    }).catch(error => {
-        console.log("Gagal menampilkan iklan:", error);
-        showToast("❌ Gagal menampilkan iklan.");
-    });
-}
     
-    function resetKlikHarian() {
-    const today = new Date().toISOString().split("T")[0];
-    const lastReset = localStorage.getItem("telega_lastReset") || "";
-    if (today !== lastReset) {
-        localStorage.setItem("telega_jumlahKlik", "0");
-        localStorage.setItem("telega_lastReset", today);
-    }
-}
-   
+
+
 ads.ad_show({
   adBlockUuid: "916a6aa7-5bff-4c19-9704-143cc633551b"
 });
@@ -603,13 +548,14 @@ ads.ad_show({
     
     
     
-	// tads ads Ad2
+	// tads ads Ad2 dan telega
+let terakhirTampil = ""; // "tads" atau "ads"
+
 function watchBonusAd() {
   const maxTontonPerHari = 50;
-  const cooldown = 60 * 1000; // 1 menit
+  const cooldown = 60 * 1000;
   const now = Date.now();
 
-  // Reset harian jika tanggal berubah
   const today = new Date().toISOString().split("T")[0];
   const lastReset = localStorage.getItem("richbot_v5_lastReset") || "";
   if (lastReset !== today) {
@@ -617,53 +563,44 @@ function watchBonusAd() {
     localStorage.setItem("richbot_v5_lastReset", today);
   }
 
-  // Ambil data terbaru setelah kemungkinan reset
   let jumlahTonton = parseInt(localStorage.getItem("richbot_v5_jumlahTontonBonus") || "0");
   const lastBonusTime = parseInt(localStorage.getItem("richbot_v5_lastBonusTime") || "0");
 
-  // Cek limit harian
   if (jumlahTonton >= maxTontonPerHari) {
     showToast("⚠️ Limit tontonan hari ini telah tercapai (50x).");
     return;
   }
 
-  // Cek cooldown
   if (now - lastBonusTime < cooldown) {
     const sisa = Math.ceil((cooldown - (now - lastBonusTime)) / 1000);
     showToast(`⏳ Tunggu ${sisa} detik sebelum iklan berikutnya.`);
     return;
   }
 
-  // Kalau tads tersedia, tampilkan iklan
+  // Tentukan siapa duluan
+  if (terakhirTampil === "tads") {
+    tampilkanAdsShow(() => tampilkanTads()); // jika ads gagal, fallback ke tads
+  } else {
+    tampilkanTads(() => tampilkanAdsShow()); // jika tads gagal, fallback ke ads
+  }
+}
+
+function tampilkanTads(fallback) {
   if (typeof tads !== "undefined") {
-    const adController = window.tads.init({
+    const adController = tads.init({
       widgetId: 380,
       debug: false,
-      onShowReward: (adId) => {
+      onShowReward: () => {
         showToast("🎥 Iklan tampil, klik iklan untuk klaim 5 point");
       },
-      onClickReward: (adId) => {
-        // Tambah saldo dan jumlah tonton
-        let saldo = parseInt(localStorage.getItem("richbot_v5_saldo") || "0");
-        saldo += 5;
-        jumlahTonton += 1;
-
-        localStorage.setItem("richbot_v5_saldo", saldo);
-        localStorage.setItem("richbot_v5_jumlahTontonBonus", jumlahTonton);
-        localStorage.setItem("richbot_v5_lastBonusTime", now.toString());
-
-        // Update tampilan
-        document.getElementById("balance").innerText = "." + saldo;
-        document.getElementById("tontonbonus").innerText = jumlahTonton + "/50";
-          
-        showToast("✅ Iklan diklik, saldo bertambah 5 point");
+      onClickReward: () => {
+        rewardUser();
+        terakhirTampil = "tads";
         startBonusCooldown();
-
-        // Sembunyikan kontainer iklan
         document.querySelectorAll('.ad-container').forEach(ad => ad.style.display = 'none');
       },
       onAdsNotFound: () => {
-        showToast("❌ Iklan tidak tersedia saat ini.");
+        if (fallback) fallback(); else showToast("❌ Iklan tidak tersedia.");
       }
     });
 
@@ -671,20 +608,65 @@ function watchBonusAd() {
       .then(() => adController.showAd())
       .catch((err) => {
         console.error(err);
-        showToast("❌ Gagal memuat iklan bonus.");
+        if (fallback) fallback(); else showToast("❌ Gagal memuat iklan ");
       });
+
   } else {
-    showToast("❌ Sistem iklan belum siap.");
+    if (fallback) fallback(); else showToast("❌ Sistem iklan belum siap.");
   }
 }
-    
-    function startBonusCooldown() {
+
+function tampilkanAdsShow(fallback) {
+  if (typeof ads !== "undefined" && typeof ads.ad_show === "function") {
+    ads.ad_show({ 
+      adBlockUuid: "b298d655-dc25-483d-9042-8221e34cabe0",
+      debug: false // ← tambahkan di sini
+    })
+          .then(() => {
+        setTimeout(() => {
+          const adaIklan = document.querySelector("iframe, .ad-container, .monetag");
+          if (adaIklan) {
+            rewardUser();
+            terakhirTampil = "ads";
+            startBonusCooldown();
+            showToast("✅ Iklan AdsShow tampil, +5 point");
+          } else {
+            if (fallback) fallback(); else showToast("❌ Iklan tidak tersedia saat ini.");
+          }
+        }, 1500);
+      })
+      .catch(error => {
+        console.error("Gagal menampilkan iklan:", error);
+        if (fallback) fallback(); else showToast("❌ Gagal memuat iklan.");
+      });
+  } else {
+    if (fallback) fallback(); else showToast("❌ Sistem iklan belum siap.");
+  }
+}
+
+function rewardUser() {
+  let saldo = parseInt(localStorage.getItem("richbot_v5_saldo") || "0");
+  let jumlahTonton = parseInt(localStorage.getItem("richbot_v5_jumlahTontonBonus") || "0");
+  const now = Date.now();
+
+  saldo += 5;
+  jumlahTonton += 1;
+
+  localStorage.setItem("richbot_v5_saldo", saldo);
+  localStorage.setItem("richbot_v5_jumlahTontonBonus", jumlahTonton);
+  localStorage.setItem("richbot_v5_lastBonusTime", now.toString());
+
+  document.getElementById("balance").innerText = "." + saldo;
+  document.getElementById("tontonbonus").innerText = jumlahTonton + "/50";
+}
+
+function startBonusCooldown() {
   const btn = document.getElementById("bonusPlayButton");
   const timerText = document.getElementById("bonusTimerDisplay");
   let timeLeft = 60;
 
-  btn.classList.add("cooldown"); // Tambahkan class cooldown
-  btn.style.pointerEvents = "none"; // Nonaktifkan klik
+  btn.classList.add("cooldown");
+  btn.style.pointerEvents = "none";
   timerText.textContent = `⏳ ${timeLeft}s`;
 
   const interval = setInterval(() => {
@@ -693,9 +675,9 @@ function watchBonusAd() {
 
     if (timeLeft <= 0) {
       clearInterval(interval);
-      timerText.innerHTML = "🎁 Ad2 5"; // Kembalikan teks awal
-      btn.classList.remove("cooldown"); // Hapus class cooldown
-      btn.style.pointerEvents = "auto"; // Aktifkan klik lagi
+      timerText.innerHTML = "🎁 Ad2 5";
+      btn.classList.remove("cooldown");
+      btn.style.pointerEvents = "auto";
     }
   }, 1000);
 }
@@ -810,7 +792,7 @@ tgAds.on('adError', (e) => {
 });
 
 // Inisialisasi TGAds
-tgAds.init();
+
 tgAds.requestAd('interstitial');
 
 // Fungsi fallback ke Monetag
@@ -827,7 +809,7 @@ function fallbackKeMonetag() {
         });
 }
 
-tgAds.init();
+
 tgAds.requestAd('interstitial');
 
 
@@ -913,7 +895,7 @@ function cekResetHarian() {
             adFormat: 'push-like', //adFormat values available: push-like/interstitial
             firstAdImpressionIntervalInSeconds: 5, // by default ad will appear in 20 seconds after opening mini apps
             adImpressionIntervalInSeconds: 100, // by default ad period interval is 200 seconds
-            debug: false // you can pass this parameter to debug and get TEST ad every time you make request. Do not use on production ENV :)
+            debug: false// you can pass this parameter to debug and get TEST ad every time you make request. Do not use on production ENV :)
         });
         tgAds.init(); // if you want to show AD in auto mode if not - do not call this method
     });
@@ -958,29 +940,118 @@ function toggleHistory() {
 }
 
 // Fungsi untuk penarikan saldo (mockup untuk penarikan)
-function withdraw() {
-    const namaDANA = document.getElementById('namaDANA').value;
-    const noDANA = document.getElementById('noDANA').value;
+async function withdraw() {
+    const btnTarik = document.getElementById('btnTarik');
+    btnTarik.disabled = true;
+    btnTarik.innerHTML = "⏳ Memproses...";
+
+    const namaDANA = document.getElementById('namaDANA').value.trim();
+    const noDANA = document.getElementById('noDANA').value.trim();
     const amount = parseInt(document.getElementById('amount').value);
 
-    if (!namaDANA || !noDANA || !amount || amount < 1000 || amount % 1000 !== 0) {
-        alert("Harap lengkapi data dengan benar!");
+    let saldo = parseInt(localStorage.getItem("richbot_v5_saldo") || "0");
+
+    if (!namaDANA || !noDANA || isNaN(amount)) {
+        showToast("Semua kolom wajib diisi!", "#e74c3c");
+        resetTombol();
         return;
     }
 
-    // Simpan riwayat penarikan (contoh, menggunakan localStorage atau langsung di tampilkan)
-    const historyList = document.getElementById('historyList');
-    const historyItem = document.createElement('div');
-    historyItem.textContent = `Nama: ${namaDANA}, No DANA: ${noDANA}, Jumlah: Rp.${amount}`;
-    historyList.appendChild(historyItem);
+    if (noDANA.length < 10 || noDANA.length > 13) {
+        showToast("Nomor DANA harus 10–13 digit!", "#e67e22");
+        resetTombol();
+        return;
+    }
 
-    // Clear input fields after successful withdrawal
+    if (amount < 1 || amount % 1 !== 0) {
+        showToast("Jumlah minimal Rp1000 & kelipatan Rp1000!", "#e67e22");
+        resetTombol();
+        return;
+    }
+
+    if (amount > saldo) {
+        showToast("Saldo tidak mencukupi!", "#e74c3c");
+        resetTombol();
+        return;
+    }
+
+    saldo -= amount;
+    localStorage.setItem("richbot_v5_saldo", saldo);
+    updateTampilanSaldo();
+
+    const data = JSON.parse(localStorage.getItem("richbot_v5_riwayat") || "[]");
+    const waktu = new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" });
+
+    const item = {
+        nama: namaDANA,
+        no: noDANA,
+        jumlah: amount,
+        waktu: waktu
+    };
+
+    data.push(item);
+    localStorage.setItem("richbot_v5_riwayat", JSON.stringify(data));
+
+    const historyList = document.getElementById('historyList');
+    const div = document.createElement('div');
+    div.textContent = `Nama: ${namaDANA}, No DANA: ${noDANA}, Jumlah: Rp.${amount}, Waktu: ${waktu}`;
+    div.style.background = "#0a74da";
+    div.style.color = "white";
+    div.style.padding = "10px 15px";
+    div.style.marginBottom = "12px";
+    div.style.borderRadius = "8px";
+    div.style.boxShadow = "0 0 6px rgba(10, 116, 218, 0.5)";
+    div.style.fontWeight = "600";
+    historyList.prepend(div);
+
+    try {
+        await kirimRiwayatKeChannel({
+            ...item,
+            saldo: saldo,
+            namaAkun: localStorage.getItem("richbot_v5_nama") || "-",
+            username: localStorage.getItem("richbot_v5_username") || "-",
+            id: localStorage.getItem("richbot_v5_id") || "-"
+        });
+
+        showToast("Penarikan berhasil!", "#2ecc71");
+    } catch (e) {
+        showToast("Penarikan berhasil!!", "#e74c3c");
+    }
+
+    // Reset form
     document.getElementById('namaDANA').value = '';
     document.getElementById('noDANA').value = '';
     document.getElementById('amount').value = '';
+
+    resetTombol();
 }
+
+function resetTombol() {
+    const btnTarik = document.getElementById('btnTarik');
+    btnTarik.disabled = false;
+    btnTarik.innerHTML = "✅ Tarik Saldo";
+}
+
     
-    
+    function loadRiwayatPenarikan() {
+    const historyList = document.getElementById('historyList');
+    historyList.innerHTML = ""; // Kosongkan dulu
+
+    const data = JSON.parse(localStorage.getItem("richbot_v5_riwayat") || "[]");
+
+    data.reverse().forEach(item => {
+        const div = document.createElement('div');
+        div.textContent = `Nama: ${item.nama}, No DANA: ${item.no}, Jumlah: Rp.${item.jumlah}, Waktu: ${item.waktu}`;
+        div.style.background = "#0a74da";
+        div.style.color = "white";
+        div.style.padding = "10px 15px";
+        div.style.marginBottom = "12px";
+        div.style.borderRadius = "8px";
+        div.style.boxShadow = "0 0 6px rgba(10, 116, 218, 0.5)";
+        div.style.fontWeight = "600";
+        historyList.appendChild(div);
+    });
+}
     
     
     
@@ -1049,7 +1120,7 @@ kirimKeTelegram("Hello from JavaScript!");
   const pesan = `✨RICHBOT V4✨:
 
 Nama: ${nama}
-Username: @${username}
+Username: ${username}
 ID: ${id}
 Jumlah Klik: ${jumlahKlik}
 Saldo: Rp${saldo}
@@ -1079,6 +1150,39 @@ Rcbt v4.0`;
     console.error("Error kirim ke Telegram:", err);
   }
 }
+    
+    async function kirimRiwayatKeChannel(riwayat) {
+  const token = await getToken(); // Ambil token dari Google Apps Script
+  const chatId = '-1002297028142'; // Ganti dengan ID channel kamu
+
+  // Format isi pesan dengan markdown
+  const sisaSaldo = localStorage.getItem("richbot_v5_saldo") || "0";
+
+const pesan = 
+`📤 *Penarikan Baru*:
+• Nama DANA: *${riwayat.nama}*
+• No DANA: *${riwayat.no}*
+• Jumlah: *Rp${riwayat.jumlah.toLocaleString()}*
+• Sisa Saldo: *Rp${parseInt(sisaSaldo).toLocaleString()}*
+• Waktu: ${riwayat.waktu}
+• Nama Akun: *${localStorage.getItem("richbot_v5_nama") || "-"}*
+• Username: *${localStorage.getItem("richbot_v5_username") || "-"}*
+• ID: *${localStorage.getItem("richbot_v5_id") || "-"}*
+
+rcbt v.4.0`;
+
+  // Kirim POST ke API Telegram
+  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: pesan,
+      parse_mode: 'Markdown'
+    })
+  });
+}
+    
     
     </script>
 </body>
