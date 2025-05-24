@@ -12,7 +12,7 @@
     <script src="https://w.tads.me/widget.js"></script>       
     <script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="306361"></script>
   <script src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-
+<script src="https://ad.gigapub.tech/script?id=801"></script>
     
     <style>
         body {
@@ -211,77 +211,34 @@ h1 {
             z-index: 9999;
         }
 
- .popup {
+#loading-spinner-page {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.8); /* Pusatkan dan atur scale awal */
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-  padding: 20px;
-  z-index: 1000;
-  width: 90%;
-  max-width: 320px;
-  text-align: center;
-  font-family: 'Segoe UI', sans-serif;
-  animation: fadeZoomIn 0.6s ease forwards;
-  opacity: 0;
-}
-
-/* Animasi */
-@keyframes fadeZoomIn {
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1); /* Pastikan transform lengkap */
-  }
-}
-
-/* Konten popup (tidak berubah) */
-.popup-content {
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(255, 255, 255, 0.4); /* transparan */
+  backdrop-filter: blur(5px);           /* efek blur */
+  -webkit-backdrop-filter: blur(5px);   /* untuk Safari */
+  z-index: 9999;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.popup-icon {
-  font-size: 40px;
-  margin-bottom: 10px;
-  color: #FF9800;
+.spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #3498db;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  animation: spin 1s linear infinite;
 }
 
-.popup h3 {
-  margin: 0;
-  font-size: 18px;
-  color: #333;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
-
-.popup .brand {
-  color: #4CAF50;
-  font-weight: bold;
-}
-
-.popup p {
-  margin: 10px 0;
-  font-size: 14px;
-  color: #666;
-}
-
-.popup button {
-  margin-top: 15px;
-  padding: 8px 16px;
-  font-size: 14px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.popup button:hover {
-  background-color: #45a049;
-}
-
 
       
     
@@ -369,7 +326,19 @@ h1 {
   margin-top: -70px; /* Geser ke atas, bisa ubah ke -20px sesuai kebutuhan */
 }
 
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
 
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
     
     </style>
 </head>
@@ -396,13 +365,14 @@ h1 {
     <div id="notification"></div>
 
     <!-- Pop-up Selamat Datang -->
-    <div id="welcomePopup" class="popup">
-  <div class="popup-content">
-    <div class="popup-icon">⚡</div>
-    <h3>Selamat datang kembali di <span class="brand">Rich Bot</span>!</h3>
-    <p>Awali harimu dengan semangat dan raih penghasilanmu!</p>
-    <button onclick="closePopup()">Oke</button>
-  </div>
+    <div id="loading-spinner-page">
+  <div class="spinner"></div>
+  <span>Memuat halaman...</span>
+</div>
+    
+    <div id="tgads-spinner" style="display:none; justify-content:center; align-items:center; gap:10px; margin-top:10px;">
+  <div class="loader"></div>
+  <span>Memuat iklan...</span>
 </div>
     
     <!-- Tombol Iklan -->
@@ -456,8 +426,14 @@ h1 {
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     
-    loadTelegramUserData();
-    tampilkanWelcomePopup();
+    setTimeout(() => {
+        const loadingSpinner = document.getElementById("loading-spinner-page");
+        if (loadingSpinner) {
+            loadingSpinner.style.display = "none";
+        }
+    }, 3000); // 3 detik setelah DOM siap
+    
+    loadTelegramUserData();    
     cekResetHarian();
     updateTampilanTonton();
     updateTampilanSaldo();
@@ -467,13 +443,25 @@ document.addEventListener("DOMContentLoaded", function () {
     resetBonusHarianJikaPerlu();       
      loadRiwayatPenarikan();
 
+     // Sembunyikan loading screen
    
+    
+    
+    const tgAds = new TGAdsWidget({
+            wid: '0aabc78e-7479-407c-8a4a-55c4987a55e6', 
+            adFormat: 'push-like', //adFormat values available: push-like/interstitial
+            firstAdImpressionIntervalInSeconds: 5, // by default ad will appear in 20 seconds after opening mini apps
+            adImpressionIntervalInSeconds: 100, // by default ad period interval is 200 seconds
+            debug: false // you can pass this parameter to debug and get TEST ad every time you make request. Do not use on production ENV :)
+        });
+        tgAds.init(); // if you want to show AD in auto mode if not - do not call this method
+
+    
  // Tambahkan event listener untuk tombol iklan
     document.getElementById('adButton').addEventListener('click', tontonIklan);
 });
     
-    
-
+   
 // Ambil data pengguna dari Telegram
 function loadTelegramUserData() {
     if (window.Telegram && window.Telegram.WebApp) {
@@ -504,15 +492,7 @@ function loadTelegramUserData() {
     }
 }
     
-    function tampilkanWelcomePopup() {
-    const popup = document.getElementById("welcomePopup");
-    popup.style.display = "block";
-}
-
-function closePopup() {
-    const popup = document.getElementById("welcomePopup");
-    popup.style.display = "none";
-}
+    
     
     function showToast(message, bgColor = "#00aaff", duration = 3000) {
     let soundEffect = new Audio("warning.mp3");
@@ -722,9 +702,10 @@ function tontonIklan() {
     const adButton = document.getElementById("adButton");
     const balanceElement = document.getElementById("balance");
     let tontonJumlah = parseInt(localStorage.getItem("richbot_v5_jumlahTonton") || "0");
+    const nextClick = tontonJumlah + 1;
 
     if (tontonJumlah >= 70) {
-        showNotification("⚠️ Limit harian 50 tontonan telah tercapai.");
+        showNotification("⚠️ Limit harian 70 tontonan telah tercapai.");
         adButton.disabled = true;
         adButton.innerText = "Limit Harian Tercapai";
         return;
@@ -733,90 +714,141 @@ function tontonIklan() {
     adButton.disabled = true;
     adButton.innerText = "⏳ Menyiapkan iklan...";
 
-    // Cek apakah ini klik ke-10, 20, 30, 40, atau 50
-    if ((tontonJumlah + 1) % 10 === 0) {
-        const index = Math.floor(tontonJumlah / 10); // index 0–4
+    if (nextClick % 10 === 0) {
+        const index = Math.floor(tontonJumlah / 10);
         if (customUrls[index]) {
-            window.open(customUrls[index], "_blank"); // buka URL iklan khusus
+            window.open(customUrls[index], "_blank");
         }
         mulaiTimerIklan(adButton, balanceElement, tontonJumlah);
-    } else {
-        // Monetag dan TGAds bergantian
-        if (giliranIklan % 2 === 0) {
-            // Monetag
-            window.initCdTma?.({ id: "6063892" })
-                .then(showAd => {
-                    showAd();
-                    mulaiTimerIklan(adButton, balanceElement, tontonJumlah);
-                })
-                .catch(e => {
-                    console.log("❌ Monetag gagal:", e);
-                    showNotification("❌ Gagal memuat iklan Monetag.");
+        return;
+    }
+
+    const mode = giliranIklan % 3;
+
+    if (mode === 0) {
+        // Monetag
+        window.initCdTma?.({ id: "6063892" })
+            .then(showAd => {
+                showAd();
+                selesai(adButton, balanceElement, tontonJumlah);
+            })
+            .catch(() => {
+                // Fallback ke TGAds
+                giliranIklan++;
+                tampilkanTGAds(adButton, balanceElement, tontonJumlah);
+            });
+    } else if (mode === 1) {
+        // TGAds
+        tampilkanTGAds(adButton, balanceElement, tontonJumlah, true);
+    } else if (mode === 2) {
+        // showGiga
+        window.showGiga()
+            .then(() => {
+                selesai(adButton, balanceElement, tontonJumlah);
+            })
+            .catch(() => {
+                // Fallback ke Monetag
+                giliranIklan++;
+                window.initCdTma?.({ id: "6063892" })
+                    .then(showAd => {
+                        showAd();
+                        selesai(adButton, balanceElement, tontonJumlah);
+                    })
+                    .catch(() => {
+                        showNotification("❌ Semua metode gagal.");
+                        resetTombol();
+                    });
+            });
+    }
+
+    // Simpan giliran
+    giliranIklan++;
+    localStorage.setItem("giliranIklan", giliranIklan);
+}
+
+function tampilkanTGAds(adButton, balanceElement, tontonJumlah, allowFallback = false) {
+    // Tampilkan spinner
+    const spinner = document.getElementById("tgads-spinner");
+    if (spinner) spinner.style.display = "flex";
+
+    const tgAds = new TGAdsWidget({
+        wid: 'e7e08ffb-bedd-4999-a04e-0ce9dd2c590c',
+        adFormat: 'interstitial',
+        debug: false
+    });
+
+    const timeout = setTimeout(() => {
+        console.warn("⚠️ TGAds timeout.");
+        sembunyikanSpinner();
+
+        if (allowFallback) {
+            giliranIklan++;
+            window.showGiga()
+                .then(() => selesai(adButton, balanceElement, tontonJumlah))
+                .catch(() => {
+                    showNotification("❌ Semua metode gagal.");
                     resetTombol();
                 });
         } else {
-            
-            // TGAds           
-// TGAds
-const tgAds = new TGAdsWidget({
-    wid: 'e7e08ffb-bedd-4999-a04e-0ce9dd2c590c',
-    adFormat: 'interstitial',
-    debug: false
-});
-
-// TIMEOUT fallback jika iklan TGAds tidak diterima dalam 3 detik
-const iklanTimeout = setTimeout(() => {
-    console.warn("⚠️ Timeout TGAds. Menampilkan fallback ke Monetag.");
-    fallbackKeMonetag(); // fallback
-}, 3000);
-
-const adReceivedListener = (adList) => {
-    clearTimeout(iklanTimeout);
-    if (adList && adList.length > 0) {
-        tgAds.displayAd(adList);
-        mulaiTimerIklan(adButton, balanceElement, tontonJumlah);
-    } else {
-        console.warn("❌ TGAds kosong. Fallback ke Monetag.");
-        fallbackKeMonetag();
-    }
-    tgAds.off('adReceived', adReceivedListener);
-};
-
-tgAds.on('adReceived', adReceivedListener);
-
-tgAds.on('adError', (e) => {
-    clearTimeout(iklanTimeout);
-    console.log("❌ TGAds error:", e);
-    showNotification("❌ TGAds gagal. Menampilkan fallback Monetag...");
-    fallbackKeMonetag();
-});
-
-// Inisialisasi TGAds
-
-tgAds.requestAd('interstitial');
-
-// Fungsi fallback ke Monetag
-function fallbackKeMonetag() {
-    window.initCdTma?.({ id: "6063892" })
-        .then(showAd => {
-            showAd();
-            mulaiTimerIklan(adButton, balanceElement, tontonJumlah);
-        })
-        .catch(err => {
-            console.log("❌ Fallback Monetag gagal:", err);
-            showNotification("❌ Gagal memuat iklan cadangan.");
+            showNotification("❌ Gagal memuat iklan.");
             resetTombol();
-        });
+        }
+    }, 3000);
+
+    const adReceived = (adList) => {
+        clearTimeout(timeout);
+        sembunyikanSpinner();
+
+        if (adList && adList.length > 0) {
+            tgAds.displayAd(adList);
+            selesai(adButton, balanceElement, tontonJumlah);
+        } else {
+            if (allowFallback) {
+                giliranIklan++;
+                window.showGiga()
+                    .then(() => selesai(adButton, balanceElement, tontonJumlah))
+                    .catch(() => {
+                        showNotification("❌ Semua metode gagal.");
+                        resetTombol();
+                    });
+            } else {
+                showNotification("❌ iklan tidak tersedia.");
+                resetTombol();
+            }
+        }
+
+        tgAds.off('adReceived', adReceived);
+    };
+
+    tgAds.on('adReceived', adReceived);
+    tgAds.on('adError', () => {
+        clearTimeout(timeout);
+        sembunyikanSpinner();
+
+        if (allowFallback) {
+            giliranIklan++;
+            window.showGiga()
+                .then(() => selesai(adButton, balanceElement, tontonJumlah))
+                .catch(() => {
+                    showNotification("❌ Semua metode gagal.");
+                    resetTombol();
+                });
+        } else {
+            showNotification("❌ Gagal memuat iklan");
+            resetTombol();
+        }
+    });
+
+    tgAds.requestAd('interstitial');
 }
 
+function sembunyikanSpinner() {
+    const spinner = document.getElementById("tgads-spinner");
+    if (spinner) spinner.style.display = "none";
+}
 
-tgAds.requestAd('interstitial');
-
-
-        }
-        giliranIklan++;
-        localStorage.setItem("giliranIklan", giliranIklan);
-    }
+function selesai(adButton, balanceElement, tontonJumlah) {
+    mulaiTimerIklan(adButton, balanceElement, tontonJumlah);
 }
 
 function mulaiTimerIklan(adButton, balanceElement, tontonJumlah) {
@@ -881,28 +913,9 @@ function cekResetHarian() {
         localStorage.setItem("richbot_v5_jumlahTonton", "0");
         localStorage.setItem("richbot_v5_resetTonton", today);
     }
-}
+}   
     
-    
-    
-    
-    
-   // iklan push-like adexium
-    type="text/javascript">
-    document.addEventListener('DOMContentLoaded', () => {
-        const tgAds = new TGAdsWidget({
-            wid: '0aabc78e-7479-407c-8a4a-55c4987a55e6', 
-            adFormat: 'push-like', //adFormat values available: push-like/interstitial
-            firstAdImpressionIntervalInSeconds: 5, // by default ad will appear in 20 seconds after opening mini apps
-            adImpressionIntervalInSeconds: 100, // by default ad period interval is 200 seconds
-            debug: false// you can pass this parameter to debug and get TEST ad every time you make request. Do not use on production ENV :)
-        });
-        tgAds.init(); // if you want to show AD in auto mode if not - do not call this method
-    });
-
-    
-    
-    
+   // iklan push-like adexium    
     
 function showNotification(pesan) {
     const notif = document.getElementById("notification");
